@@ -1,12 +1,12 @@
 {
     "name": "laravel/cashier",
     "description": "",
-    "keywords": ["laravel", "stripe", "billing"],
+    "keywords": ["laravel", "conekta", "billing"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Taylor Otwell",
-            "email": "taylorotwell@gmail.com"
+            "name": "Rafael Masri",
+            "email": "rafael.masri@dinkbit.com"
         }
     ],
     "require": {
@@ -15,6 +15,7 @@
         "illuminate/support": "~4.1",
         "nesbot/carbon": "~1.0",
         "stripe/stripe-php": "~1.9",
+        "conekta/conekta-php": "v1.9.1",
         "symfony/http-kernel": "~2.3"
     },
     "require-dev": {
