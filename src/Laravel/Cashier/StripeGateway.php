@@ -1,9 +1,9 @@
 <?php namespace Laravel\Cashier;
 
 use Carbon\Carbon;
-use Stripe_Invoice, Stripe_Customer;
+use Conekta_Invoice, Conekta_Customer;
 
-class StripeGateway {
+class ConektaGateway {
 
 	/**
 	 * The billable instance.
@@ -55,7 +55,7 @@ class StripeGateway {
 	protected $skipTrial = false;
 
 	/**
-	 * Create a new Stripe gateway instance.
+	 * Create a new Conekta gateway instance.
 	 *
 	 * @param  \Laravel\Cashier\BillableInterface   $billable
 	 * @param  string|null  $plan
@@ -79,14 +79,14 @@ class StripeGateway {
 	{
 		if ( ! $customer)
 		{
-			$customer = $this->createStripeCustomer($token, $description);
+			$customer = $this->createConektaCustomer($token, $description);
 		}
 
-		$this->billable->setStripeSubscription(
+		$this->billable->setConektaSubscription(
 			$customer->updateSubscription($this->buildPayload())->id
 		);
 
-		$this->updateLocalStripeData($this->getStripeCustomer($customer->id));
+		$this->updateLocalConektaData($this->getConektaCustomer($customer->id));
 	}
 
 	/**
@@ -114,7 +114,7 @@ class StripeGateway {
 	 */
 	public function swap($quantity = null)
 	{
-		$customer = $this->getStripeCustomer();
+		$customer = $this->getConektaCustomer();
 
 		// If no specific trial end date has been set, the default behavior should be
 		// to maintain the current trial state, whether that is "active" or to run
@@ -126,7 +126,7 @@ class StripeGateway {
 
 		// Again, if no explicit quantity was set, the default behaviors should be to
 		// maintain the current quantity onto the new plan. This is a sensible one
-		// that should be the expected behavior for most developers with Stripe.
+		// that should be the expected behavior for most developers with Conekta.
 		if (isset($customer->subscription) && is_null($quantity))
 		{
 			$this->quantity(
@@ -158,7 +158,7 @@ class StripeGateway {
 	 */
 	public function resume($token = null)
 	{
-		$this->noProrate()->skipTrial()->create($token, '', $this->getStripeCustomer());
+		$this->noProrate()->skipTrial()->create($token, '', $this->getConektaCustomer());
 
 		$this->billable->setTrialEndDate(null)->saveBillableInstance();
 	}
@@ -172,13 +172,13 @@ class StripeGateway {
 	{
 		try
 		{
-			$customer = $this->getStripeCustomer();
+			$customer = $this->getConektaCustomer();
 
-			Stripe_Invoice::create(['customer' => $customer->id], $this->getStripeKey())->pay();
+			Conekta_Invoice::create(['customer' => $customer->id], $this->getConektaKey())->pay();
 
 			return true;
 		}
-		catch (\Stripe_InvalidRequestError $e)
+		catch (\Conekta_InvalidRequestError $e)
 		{
 			return false;
 		}
@@ -194,7 +194,7 @@ class StripeGateway {
 	{
 		try
 		{
-			return new Invoice($this->billable, Stripe_Invoice::retrieve($id, $this->getStripeKey()));
+			return new Invoice($this->billable, Conekta_Invoice::retrieve($id, $this->getConektaKey()));
 		}
 		catch (\Exception $e)
 		{
@@ -212,14 +212,14 @@ class StripeGateway {
 	{
 		$invoices = [];
 
-		$stripeInvoices = $this->getStripeCustomer()->invoices();
+		$conektaInvoices = $this->getConektaCustomer()->invoices();
 
-		// Here we will loop through the Stripe invoices and create our own custom Invoice
+		// Here we will loop through the Conekta invoices and create our own custom Invoice
 		// instances that have more helper methods and are generally more convenient to
-		// work with than the plain Stripe objects are. Then, we'll return the array.
-		if ( ! is_null($stripeInvoices))
+		// work with than the plain Conekta objects are. Then, we'll return the array.
+		if ( ! is_null($conektaInvoices))
 		{
-			foreach ($stripeInvoices->data as $invoice)
+			foreach ($conektaInvoices->data as $invoice)
 			{
 				if ($invoice->paid || $includePending)
 				{
@@ -250,7 +250,7 @@ class StripeGateway {
 	 */
 	public function increment($count = 1)
 	{
-		$customer = $this->getStripeCustomer();
+		$customer = $this->getConektaCustomer();
 
 		$this->updateQuantity($customer, $customer->subscription->quantity + $count);
 	}
@@ -276,7 +276,7 @@ class StripeGateway {
 	 */
 	public function decrement($count = 1)
 	{
-		$customer = $this->getStripeCustomer();
+		$customer = $this->getConektaCustomer();
 
 		$this->updateQuantity($customer, $customer->subscription->quantity - $count);
 	}
@@ -284,7 +284,7 @@ class StripeGateway {
 	/**
 	 * Update the quantity of the subscription.
 	 *
-	 * @param  \Stripe_Customer  $customer
+	 * @param  \Conekta_Customer  $customer
 	 * @param  int  $quantity
 	 * @return void
 	 */
@@ -310,7 +310,7 @@ class StripeGateway {
 	 */
 	public function cancel($atPeriodEnd = true)
 	{
-		$customer = $this->getStripeCustomer();
+		$customer = $this->getConektaCustomer();
 
 		if ($customer->subscription)
 		{
@@ -330,11 +330,11 @@ class StripeGateway {
 
 		if ($atPeriodEnd)
 		{
-			$this->billable->setStripeIsActive(false)->saveBillableInstance();
+			$this->billable->setConektaIsActive(false)->saveBillableInstance();
 		}
 		else
 		{
-			$this->billable->deactivateStripe()->saveBillableInstance();
+			$this->billable->deactivateConekta()->saveBillableInstance();
 		}
 
 	}
@@ -385,14 +385,14 @@ class StripeGateway {
 	 */
 	public function updateCard($token)
 	{
-		$customer = $this->getStripeCustomer();
+		$customer = $this->getConektaCustomer();
 
 		$customer->updateSubscription([
 			'plan' => $plan = $customer->subscription->plan->id,
 			'card' => $token,
 		]);
 
-		$this->updateLocalStripeData($this->getStripeCustomer(), $plan);
+		$this->updateLocalConektaData($this->getConektaCustomer(), $plan);
 	}
 
 	/**
@@ -403,7 +403,7 @@ class StripeGateway {
 	 */
 	public function applyCoupon($coupon)
 	{
-		$customer = $this->getStripeCustomer();
+		$customer = $this->getConektaCustomer();
 
 		$customer->coupon = $coupon;
 
@@ -417,57 +417,57 @@ class StripeGateway {
 	 */
 	public function planId()
 	{
-		return $this->getStripeCustomer()->subscription->plan->id;
+		return $this->getConektaCustomer()->subscription->plan->id;
 	}
 
 	/**
-	 * Update the local Stripe data in storage.
+	 * Update the local Conekta data in storage.
 	 *
-	 * @param  \Stripe_Customer  $customer
+	 * @param  \Conekta_Customer  $customer
 	 * @param  string|null  $plan
 	 * @return void
 	 */
-	public function updateLocalStripeData($customer, $plan = null)
+	public function updateLocalConektaData($customer, $plan = null)
 	{
 		$this->billable
-				->setStripeId($customer->id)
-				->setStripePlan($plan ?: $this->plan)
+				->setConektaId($customer->id)
+				->setConektaPlan($plan ?: $this->plan)
 				->setLastFourCardDigits($this->getLastFourCardDigits($customer))
-				->setStripeIsActive(true)
+				->setConektaIsActive(true)
 				->setSubscriptionEndDate(null)
 				->saveBillableInstance();
 	}
 
 	/**
-	 * Create a new Stripe customer instance.
+	 * Create a new Conekta customer instance.
 	 *
 	 * @param  string  $token
 	 * @param  string  $description
-	 * @return \Stripe_Customer
+	 * @return \Conekta_Customer
 	 */
-	public function createStripeCustomer($token, $description)
+	public function createConektaCustomer($token, $description)
 	{
-		$customer = Stripe_Customer::create([
+		$customer = Conekta_Customer::create([
 			'card' => $token,
 			'description' => $description,
 
-		], $this->getStripeKey());
+		], $this->getConektaKey());
 
-		return $this->getStripeCustomer($customer->id);
+		return $this->getConektaCustomer($customer->id);
 	}
 
 	/**
-	 * Get the Stripe customer for entity.
+	 * Get the Conekta customer for entity.
 	 *
-	 * @return \Stripe_Customer
+	 * @return \Conekta_Customer
 	 */
-	public function getStripeCustomer($id = null)
+	public function getConektaCustomer($id = null)
 	{
-		$customer = Customer::retrieve($id ?: $this->billable->getStripeId(), $this->getStripeKey());
+		$customer = Customer::retrieve($id ?: $this->billable->getConektaId(), $this->getConektaKey());
 
 		if ($this->usingMultipleSubscriptionApi($customer))
 		{
-			$customer->subscription = $customer->findSubscription($this->billable->getStripeSubscription());
+			$customer->subscription = $customer->findSubscription($this->billable->getConektaSubscription());
 		}
 
 		return $customer;
@@ -476,20 +476,20 @@ class StripeGateway {
 	/**
 	 * Deteremine if the customer has a subscription.
 	 *
-	 * @param  \Stripe_Customer  $customer
+	 * @param  \Conekta_Customer  $customer
 	 * @return bool
 	 */
 	protected function usingMultipleSubscriptionApi($customer)
 	{
 		return ! isset($customer->subscription) &&
                  count($customer->subscriptions) > 0 &&
-                 ! is_null($this->billable->getStripeSubscription());
+                 ! is_null($this->billable->getConektaSubscription());
 	}
 
 	/**
 	 * Get the last four credit card digits for a customer.
 	 *
-	 * @param  \Stripe_Customer  $customer
+	 * @param  \Conekta_Customer  $customer
 	 * @return string
 	 */
 	protected function getLastFourCardDigits($customer)
@@ -501,7 +501,7 @@ class StripeGateway {
 	 * The coupon to apply to a new subscription.
 	 *
 	 * @param  string  $coupon
-	 * @return \Laravel\Cashier\StripeGateway
+	 * @return \Laravel\Cashier\ConektaGateway
 	 */
 	public function withCoupon($coupon)
 	{
@@ -513,7 +513,7 @@ class StripeGateway {
 	/**
 	 * Indicate that the plan change should be prorated.
 	 *
-	 * @return \Laravel\Cashier\StripeGateway
+	 * @return \Laravel\Cashier\ConektaGateway
 	 */
 	public function prorate()
 	{
@@ -525,7 +525,7 @@ class StripeGateway {
 	/**
 	 * Indicate that the plan change should not be prorated.
 	 *
-	 * @return \Laravel\Cashier\StripeGateway
+	 * @return \Laravel\Cashier\ConektaGateway
 	 */
 	public function noProrate()
 	{
@@ -538,7 +538,7 @@ class StripeGateway {
 	 * Set the quantity to apply to the subscription.
 	 *
 	 * @param  int  $quantity
-	 * @return \Laravel\Cashier\StripeGateway
+	 * @return \Laravel\Cashier\ConektaGateway
 	 */
 	public function quantity($quantity)
 	{
@@ -550,7 +550,7 @@ class StripeGateway {
 	/**
 	 * Indicate that no trial should be enforced on the operation.
 	 *
-	 * @return \Laravel\Cashier\StripeGateway
+	 * @return \Laravel\Cashier\ConektaGateway
 	 */
 	public function skipTrial()
 	{
@@ -563,7 +563,7 @@ class StripeGateway {
 	 * Specify the ending date of the trial.
 	 *
 	 * @param  \DateTime  $trialEnd
-	 * @return \Laravel\Cashier\StripeGateway
+	 * @return \Laravel\Cashier\ConektaGateway
 	 */
 	public function trialFor(\DateTime $trialEnd)
 	{
@@ -583,7 +583,7 @@ class StripeGateway {
 	}
 
 	/**
-	 * Get the trial end timestamp for a Stripe subscription update.
+	 * Get the trial end timestamp for a Conekta subscription update.
 	 *
 	 * @return int
 	 */
@@ -597,13 +597,13 @@ class StripeGateway {
 	/**
 	 * Maintain the days left of the current trial (if applicable).
 	 *
-	 * @return \Laravel\Cashier\StripeGateway
+	 * @return \Laravel\Cashier\ConektaGateway
 	 */
 	public function maintainTrial()
 	{
 		if ($this->billable->readyForBilling())
 		{
-			if ( ! is_null($trialEnd = $this->getTrialEndForCustomer($this->getStripeCustomer())))
+			if ( ! is_null($trialEnd = $this->getTrialEndForCustomer($this->getConektaCustomer())))
 			{
 				$this->calculateRemainingTrialDays($trialEnd);
 			}
@@ -647,13 +647,13 @@ class StripeGateway {
 	}
 
 	/**
-	 * Get the Stripe API key for the instance.
+	 * Get the Conekta API key for the instance.
 	 *
 	 * @return string
 	 */
-	protected function getStripeKey()
+	protected function getConektaKey()
 	{
-		return $this->billable->getStripeKey();
+		return $this->billable->getConektaKey();
 	}
 
 }

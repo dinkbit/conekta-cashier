@@ -1,14 +1,14 @@
 <?php namespace Laravel\Cashier;
 
-use Stripe_Customer;
-use Stripe_Subscription;
+use Conekta_Customer;
+use Conekta_Subscription;
 
-class Customer extends Stripe_Customer {
+class Customer extends Conekta_Customer {
 
 	/**
 	 * The subscription being managed by Cashier.
 	 *
-	 * @var \Stripe_Subscription
+	 * @var \Conekta_Subscription
 	 */
 	public $subscription;
 
@@ -25,7 +25,7 @@ class Customer extends Stripe_Customer {
 	 *
 	 * @return string|null
 	 */
-	public function getStripeSubscription()
+	public function getConektaSubscription()
 	{
 		return $this->subscription ? $this->subscription->id : null;
 	}
@@ -34,7 +34,7 @@ class Customer extends Stripe_Customer {
 	 * Find a subscription by ID.
 	 *
 	 * @param  string  $id
-	 * @return \Stripe_Subscription|null
+	 * @return \Conekta_Subscription|null
 	 */
 	public function findSubscription($id)
 	{
@@ -59,7 +59,7 @@ class Customer extends Stripe_Customer {
 	 * Update the current subscription with the given data.
 	 *
 	 * @param  array  $params
-	 * @return \Stripe_Subscription
+	 * @return \Conekta_Subscription
 	 */
 	public function updateSubscription($params = null)
 	{
@@ -77,7 +77,7 @@ class Customer extends Stripe_Customer {
 	 * Save the current subscription with the given parameters.
 	 *
 	 * @param  array  $params
-	 * @return \Stripe_Subscription
+	 * @return \Conekta_Subscription
 	 */
 	protected function saveSubscription($params)
 	{

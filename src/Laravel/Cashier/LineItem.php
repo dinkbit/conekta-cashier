@@ -3,21 +3,21 @@
 class LineItem {
 
 	/**
-	 * The Stripe invoice line instance.
+	 * The Conekta invoice line instance.
 	 *
 	 * @var object
 	 */
-	protected $stripeLine;
+	protected $conektaLine;
 
 	/**
 	 * Create a new line item instance.
 	 *
-	 * @param  object  $stripeLine
+	 * @param  object  $conektaLine
 	 * @return void
 	 */
-	public function __construct($stripeLine)
+	public function __construct($conektaLine)
 	{
-		$this->stripeLine = $stripeLine;
+		$this->conektaLine = $conektaLine;
 	}
 
 	/**
@@ -84,28 +84,28 @@ class LineItem {
 	}
 
 	/**
-	 * Get the Stripe line item instance.
+	 * Get the Conekta line item instance.
 	 *
 	 * @return object
 	 */
-	public function getStripeLine()
+	public function getConektaLine()
 	{
-		return $this->stripeLine;
+		return $this->conektaLine;
 	}
 
 	/**
-	 * Dynamically access the Stripe line item instance.
+	 * Dynamically access the Conekta line item instance.
 	 *
 	 * @param  string  $key
 	 * @return mixed
 	 */
 	public function __get($key)
 	{
-		return $this->stripeLine->{$key};
+		return $this->conektaLine->{$key};
 	}
 
 	/**
-	 * Dynamically set values on the Stripe line item instance.
+	 * Dynamically set values on the Conekta line item instance.
 	 *
 	 * @param  string  $key
 	 * @param  mixed   $value
@@ -113,7 +113,7 @@ class LineItem {
 	 */
 	public function __set($key, $value)
 	{
-		$this->stripeLine->{$key} = $value;
+		$this->conektaLine->{$key} = $value;
 	}
 
 }

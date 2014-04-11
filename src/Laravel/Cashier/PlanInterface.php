@@ -3,10 +3,10 @@
 interface PlanInterface {
 
 	/**
-	 * Get the Stripe ID for the plan.
+	 * Get the Conekta ID for the plan.
 	 *
 	 * @return string
 	 */
-	public function getStripeId();
+	public function getConektaId();
 
 }

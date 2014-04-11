@@ -60,25 +60,25 @@ class BillableTraitTest extends PHPUnit_Framework_TestCase {
 	}
 
 
-	public function testSubscribedChecksStripeIsActiveIfCardRequiredUpFront()
+	public function testSubscribedChecksConektaIsActiveIfCardRequiredUpFront()
 	{
 		$billable = new BillableTraitCardUpFrontTestStub;
-		$billable->stripe_active = true;
+		$billable->conekta_active = true;
 		$billable->subscription_ends_at = null;
 		$this->assertTrue($billable->subscribed());
 
 		$billable = new BillableTraitCardUpFrontTestStub;
-		$billable->stripe_active = false;
+		$billable->conekta_active = false;
 		$billable->subscription_ends_at = null;
 		$this->assertFalse($billable->subscribed());
 
 		$billable = new BillableTraitCardUpFrontTestStub;
-		$billable->stripe_active = false;
+		$billable->conekta_active = false;
 		$billable->subscription_ends_at = Carbon\Carbon::now()->addDays(5);
 		$this->assertTrue($billable->subscribed());
 
 		$billable = new BillableTraitCardUpFrontTestStub;
-		$billable->stripe_active = false;
+		$billable->conekta_active = false;
 		$billable->subscription_ends_at = Carbon\Carbon::now()->subDays(5);
 		$this->assertFalse($billable->subscribed());
 	}
@@ -88,56 +88,56 @@ class BillableTraitTest extends PHPUnit_Framework_TestCase {
 	{
 		$billable = new BillableTraitTestStub;
 		$billable->trial_ends_at = null;
-		$billable->stripe_active = null;
+		$billable->conekta_active = null;
 		$billable->subscription_ends_at = null;
 		$this->assertFalse($billable->subscribed());
 
 		$billable = new BillableTraitTestStub;
-		$billable->stripe_active = 0;
+		$billable->conekta_active = 0;
 		$billable->trial_ends_at = Carbon\Carbon::now()->addDays(5);
 		$this->assertTrue($billable->subscribed());
 
 		$billable = new BillableTraitTestStub;
-		$billable->stripe_active = true;
+		$billable->conekta_active = true;
 		$billable->trial_ends_at = Carbon\Carbon::now()->subDays(5);
 		$this->assertTrue($billable->subscribed());
 
 		$billable = new BillableTraitTestStub;
-		$billable->stripe_active = false;
+		$billable->conekta_active = false;
 		$billable->trial_ends_at = Carbon\Carbon::now()->subDays(5);
 		$billable->subscription_ends_at = null;
 		$this->assertFalse($billable->subscribed());
 
 		$billable = new BillableTraitTestStub;
 		$billable->trial_ends_at = null;
-		$billable->stripe_active = null;
+		$billable->conekta_active = null;
 		$billable->subscription_ends_at = Carbon\Carbon::now()->addDays(5);
 		$this->assertTrue($billable->subscribed());
 
 		$billable = new BillableTraitTestStub;
 		$billable->trial_ends_at = null;
-		$billable->stripe_active = null;
+		$billable->conekta_active = null;
 		$billable->subscription_ends_at = Carbon\Carbon::now()->subDays(5);
 		$this->assertFalse($billable->subscribed());
 	}
 
 
-	public function testReadyForBillingChecksStripeReadiness()
+	public function testReadyForBillingChecksConektaReadiness()
 	{
 		$billable = new BillableTraitTestStub;
-		$billable->stripe_id = null;
+		$billable->conekta_id = null;
 		$this->assertFalse($billable->readyForBilling());
 
 		$billable = new BillableTraitTestStub;
-		$billable->stripe_id = 1;
+		$billable->conekta_id = 1;
 		$this->assertTrue($billable->readyForBilling());
 	}
 
 
-	public function testGettingStripeKey()
+	public function testGettingConektaKey()
 	{
-		Config::shouldReceive('get')->once()->with('services.stripe.secret')->andReturn('foo');
-		$this->assertEquals('foo', BillableTraitTestStub::getStripeKey());
+		Config::shouldReceive('get')->once()->with('services.conekta.secret')->andReturn('foo');
+		$this->assertEquals('foo', BillableTraitTestStub::getConektaKey());
 	}
 
 }

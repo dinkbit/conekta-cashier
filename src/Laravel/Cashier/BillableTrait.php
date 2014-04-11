@@ -8,11 +8,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 trait BillableTrait {
 
 	/**
-	 * The Stripe API key.
+	 * The Conekta API key.
 	 *
 	 * @var string
 	 */
-	protected static $stripeKey;
+	protected static $conektaKey;
 
 	/**
 	 * Get the name that should be shown on the entity's invoices.
@@ -38,13 +38,13 @@ trait BillableTrait {
 	 * Get a new billing gateway instance for the given plan.
 	 *
 	 * @param  \Laravel\Cashier\PlanInterface|string|null  $plan
-	 * @return \Laravel\Cashier\StripeGateway
+	 * @return \Laravel\Cashier\ConektaGateway
 	 */
 	public function subscription($plan = null)
 	{
-		if ($plan instanceof PlanInterface) $plan = $plan->getStripeId();
+		if ($plan instanceof PlanInterface) $plan = $plan->getConektaId();
 
-		return new StripeGateway($this, $plan);
+		return new ConektaGateway($this, $plan);
 	}
 
 	/**
@@ -105,7 +105,7 @@ trait BillableTrait {
 	 */
 	public function invoices()
 	{
-		return $this->stripeIsActive() ? $this->subscription()->invoices() : [];
+		return $this->conektaIsActive() ? $this->subscription()->invoices() : [];
 	}
 
 	/**
@@ -162,11 +162,11 @@ trait BillableTrait {
 	{
 		if ($this->requiresCardUpFront())
 		{
-			return $this->stripeIsActive() || $this->onGracePeriod();
+			return $this->conektaIsActive() || $this->onGracePeriod();
 		}
 		else
 		{
-			return $this->stripeIsActive() || $this->onTrial() || $this->onGracePeriod();
+			return $this->conektaIsActive() || $this->onTrial() || $this->onGracePeriod();
 		}
 	}
 
@@ -181,13 +181,13 @@ trait BillableTrait {
 	}
 
 	/**
-	 * Determine if the entity has a Stripe ID but is no longer active.
+	 * Determine if the entity has a Conekta ID but is no longer active.
 	 *
 	 * @return bool
 	 */
 	public function cancelled()
 	{
-		return $this->readyForBilling() && ! $this->stripeIsActive();
+		return $this->readyForBilling() && ! $this->conektaIsActive();
 	}
 
 	/**
@@ -208,9 +208,9 @@ trait BillableTrait {
 	 */
 	public function onPlan($plan)
 	{
-		if ($plan instanceof PlanInterface) $plan = $plan->getStripeId();
+		if ($plan instanceof PlanInterface) $plan = $plan->getConektaId();
 
-		return $this->stripeIsActive() && $this->subscription()->planId() == $plan;
+		return $this->conektaIsActive() && $this->subscription()->planId() == $plan;
 	}
 
 	/**
@@ -226,91 +226,91 @@ trait BillableTrait {
 	}
 
 	/**
-	 * Determine if the entity is a Stripe customer.
+	 * Determine if the entity is a Conekta customer.
 	 *
 	 * @return bool
 	 */
 	public function readyForBilling()
 	{
-		return ! is_null($this->getStripeId());
+		return ! is_null($this->getConektaId());
 	}
 
 	/**
-	 * Determine if the entity has a current Stripe subscription.
+	 * Determine if the entity has a current Conekta subscription.
 	 *
 	 * @return bool
 	 */
-	public function stripeIsActive()
+	public function conektaIsActive()
 	{
-		return $this->stripe_active;
+		return $this->conekta_active;
 	}
 
 	/**
-	 * Set whether the entity has a current Stripe subscription.
+	 * Set whether the entity has a current Conekta subscription.
 	 *
 	 * @param  bool  $active
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function setStripeIsActive($active = true)
+	public function setConektaIsActive($active = true)
 	{
-		$this->stripe_active = $active;
+		$this->conekta_active = $active;
 
 		return $this;
 	}
 
 	/**
-	 * Set Stripe as inactive on the entity.
+	 * Set Conekta as inactive on the entity.
 	 *
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function deactivateStripe()
+	public function deactivateConekta()
 	{
-		$this->setStripeIsActive(false);
+		$this->setConektaIsActive(false);
 
-		$this->stripe_subscription = null;
+		$this->conekta_subscription = null;
 
 		return $this;
 	}
 
 	/**
-	 * Deteremine if the entity has a Stripe customer ID.
+	 * Deteremine if the entity has a Conekta customer ID.
 	 *
 	 * @return bool
 	 */
-	public function hasStripeId()
+	public function hasConektaId()
 	{
-		return ! is_null($this->stripe_id);
+		return ! is_null($this->conekta_id);
 	}
 
 	/**
-	 * Get the Stripe ID for the entity.
+	 * Get the Conekta ID for the entity.
 	 *
 	 * @return string
 	 */
-	public function getStripeId()
+	public function getConektaId()
 	{
-		return $this->stripe_id;
+		return $this->conekta_id;
 	}
 
 	/**
-	 * Get the name of the Stripe ID database column.
+	 * Get the name of the Conekta ID database column.
 	 *
 	 * @return string
 	 */
-	public function getStripeIdName()
+	public function getConektaIdName()
 	{
-		return 'stripe_id';
+		return 'conekta_id';
 	}
 
 	/**
-	 * Set the Stripe ID for the entity.
+	 * Set the Conekta ID for the entity.
 	 *
-	 * @param  string  $stripe_id
+	 * @param  string  $conekta_id
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function setStripeId($stripe_id)
+	public function setConektaId($conekta_id)
 	{
-		$this->stripe_id = $stripe_id;
+		$this->conekta_id = $conekta_id;
 
 		return $this;
 	}
@@ -320,9 +320,9 @@ trait BillableTrait {
 	 *
 	 * @return string
 	 */
-	public function getStripeSubscription()
+	public function getConektaSubscription()
 	{
-		return $this->stripe_subscription;
+		return $this->conekta_subscription;
 	}
 
 	/**
@@ -331,32 +331,32 @@ trait BillableTrait {
 	 * @param  string  $subscription_id
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function setStripeSubscription($subscription_id)
+	public function setConektaSubscription($subscription_id)
 	{
-		$this->stripe_subscription = $subscription_id;
+		$this->conekta_subscription = $subscription_id;
 
 		return $this;
 	}
 
 	/**
-	 * Get the Stripe plan ID.
+	 * Get the Conekta plan ID.
 	 *
 	 * @return string
 	 */
-	public function getStripePlan()
+	public function getConektaPlan()
 	{
-		return $this->stripe_plan;
+		return $this->conekta_plan;
 	}
 
 	/**
-	 * Set the Stripe plan ID.
+	 * Set the Conekta plan ID.
 	 *
 	 * @param  string  $plan
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function setStripePlan($plan)
+	public function setConektaPlan($plan)
 	{
-		$this->stripe_plan = $plan;
+		$this->conekta_plan = $plan;
 
 		return $this;
 	}
@@ -430,24 +430,24 @@ trait BillableTrait {
 	}
 
 	/**
-	 * Get the Stripe API key.
+	 * Get the Conekta API key.
 	 *
 	 * @return string
 	 */
-	public static function getStripeKey()
+	public static function getConektaKey()
 	{
-		return static::$stripeKey ?: Config::get('services.stripe.secret');
+		return static::$conektaKey ?: Config::get('services.conekta.secret');
 	}
 
 	/**
-	 * Set the Stripe API key.
+	 * Set the Conekta API key.
 	 *
 	 * @param  string  $key
 	 * @return void
 	 */
-	public static function setStripeKey($key)
+	public static function setConektaKey($key)
 	{
-		static::$stripeKey = $key;
+		static::$conektaKey = $key;
 	}
 
 }

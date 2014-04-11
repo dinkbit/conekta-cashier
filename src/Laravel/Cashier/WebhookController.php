@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 class WebhookController extends Controller {
 
 	/**
-	 * Handle a Stripe webhook call.
+	 * Handle a Conekta webhook call.
 	 *
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
@@ -24,7 +24,7 @@ class WebhookController extends Controller {
 	}
 
 	/**
-	 * Handle a failed payment from a Stripe subscription.
+	 * Handle a failed payment from a Conekta subscription.
 	 *
 	 * @param  array  $payload
 	 * @return \Symfony\Component\HttpFoundation\Response
@@ -53,14 +53,14 @@ class WebhookController extends Controller {
 	}
 
 	/**
-	 * Get the billable entity instance by Stripe ID.
+	 * Get the billable entity instance by Conekta ID.
 	 *
-	 * @param  string  $stripeId
+	 * @param  string  $conektaId
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	protected function getBillable($stripeId)
+	protected function getBillable($conektaId)
 	{
-		return App::make('Laravel\Cashier\BillableRepositoryInterface')->find($stripeId);
+		return App::make('Laravel\Cashier\BillableRepositoryInterface')->find($conektaId);
 	}
 
 	/**

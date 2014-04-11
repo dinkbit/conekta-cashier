@@ -5,16 +5,16 @@ use Illuminate\Support\Facades\Config;
 class EloquentBillableRepository implements BillableRepositoryInterface {
 
 	/**
-	 * Find a BillableInterface implementation by Stripe ID.
+	 * Find a BillableInterface implementation by Conekta ID.
 	 *
-	 * @param  string  $stripeId
+	 * @param  string  $conektaId
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function find($stripeId)
+	public function find($conektaId)
 	{
-		$model = $this->createCashierModel(Config::get('services.stripe.model'));
+		$model = $this->createCashierModel(Config::get('services.conekta.model'));
 
-		return $model->where($model->getStripeIdName(), $stripeId)->first();
+		return $model->where($model->getConektaIdName(), $conektaId)->first();
 	}
 
 	/**

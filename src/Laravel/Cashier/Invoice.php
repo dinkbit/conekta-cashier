@@ -16,11 +16,11 @@ class Invoice {
 	protected $billable;
 
 	/**
-	 * The Stripe invoice instance.
+	 * The Conekta invoice instance.
 	 *
 	 * @var object
 	 */
-	protected $stripeInvoice;
+	protected $conektaInvoice;
 
 	/**
 	 * Create a new invoice instance.
@@ -32,7 +32,7 @@ class Invoice {
 	public function __construct(BillableInterface $billable, $invoice)
 	{
 		$this->billable = $billable;
-		$this->stripeInvoice = $invoice;
+		$this->conektaInvoice = $invoice;
 
 		$this->files = new Filesystem;
 	}
@@ -155,7 +155,7 @@ class Invoice {
 	 */
 	public function coupon()
 	{
-		if (isset($this->stripeInvoice->discount))
+		if (isset($this->conektaInvoice->discount))
 		{
 			return $this->discount->coupon->id;
 		}
@@ -345,13 +345,13 @@ class Invoice {
 	}
 
 	/**
-	 * Get the Stripe invoice object.
+	 * Get the Conekta invoice object.
 	 *
 	 * @return object
 	 */
-	public function getStripeInvoice()
+	public function getConektaInvoice()
 	{
-		return $this->stripeInvoice;
+		return $this->conektaInvoice;
 	}
 
 	/**
@@ -393,18 +393,18 @@ class Invoice {
 	}
 
 	/**
-	 * Dynamically get values from the Stripe invoice.
+	 * Dynamically get values from the Conekta invoice.
 	 *
 	 * @param  string  $key
 	 * @return mixed
 	 */
 	public function __get($key)
 	{
-		return $this->stripeInvoice->{$key};
+		return $this->conektaInvoice->{$key};
 	}
 
 	/**
-	 * Dynamically set values on the Stripe invoice.
+	 * Dynamically set values on the Conekta invoice.
 	 *
 	 * @param  string  $key
 	 * @param  mixed   $value
@@ -412,7 +412,7 @@ class Invoice {
 	 */
 	public function __set($key, $value)
 	{
-		$this->stripeInvoice->{$key} = $value;
+		$this->conektaInvoice->{$key} = $value;
 	}
 
 }

@@ -3,11 +3,11 @@
 interface BillableRepositoryInterface {
 
 	/**
-	 * Find a BillableInterface implementation by Stripe ID.
+	 * Find a BillableInterface implementation by Conekta ID.
 	 *
-	 * @param  string  $stripeId
+	 * @param  string  $conektaId
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function find($stripeId);
+	public function find($conektaId);
 
 }

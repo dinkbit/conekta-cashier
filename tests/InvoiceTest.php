@@ -99,9 +99,9 @@ class InvoiceTest extends PHPUnit_Framework_TestCase {
 		$location = 'location';
 		$phone = 'phone';
 		$url = 'url';
-		$__stripeInvoice = (object) ['id' => 1, 'date' => $date = time()];
+		$__conektaInvoice = (object) ['id' => 1, 'date' => $date = time()];
 
-		$invoice = m::mock('Laravel\Cashier\Invoice', array(m::mock('Laravel\Cashier\BillableInterface'), $__stripeInvoice));
+		$invoice = m::mock('Laravel\Cashier\Invoice', array(m::mock('Laravel\Cashier\BillableInterface'), $__conektaInvoice));
 		$invoice->shouldReceive('date')->andReturn(Carbon\Carbon::createFromTimestamp($date));
 
 		/**

@@ -93,55 +93,55 @@ interface BillableInterface {
 	public function requiresCardUpFront();
 
 	/**
-	 * Determine if the entity is a Stripe customer.
+	 * Determine if the entity is a Conekta customer.
 	 *
 	 * @return bool
 	 */
 	public function readyForBilling();
 
 	/**
-	 * Determine if the entity has a current Stripe subscription.
+	 * Determine if the entity has a current Conekta subscription.
 	 *
 	 * @return bool
 	 */
-	public function stripeIsActive();
+	public function conektaIsActive();
 
 	/**
-	 * Set whether the entity has a current Stripe subscription.
+	 * Set whether the entity has a current Conekta subscription.
 	 *
 	 * @param  bool  $active
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function setStripeIsActive($active = true);
+	public function setConektaIsActive($active = true);
 
 	/**
-	 * Set Stripe as inactive on the entity.
+	 * Set Conekta as inactive on the entity.
 	 *
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function deactivateStripe();
+	public function deactivateConekta();
 
 	/**
-	 * Get the Stripe ID for the entity.
+	 * Get the Conekta ID for the entity.
 	 *
 	 * @return string
 	 */
-	public function getStripeId();
+	public function getConektaId();
 
 	/**
-	 * Set the Stripe ID for the entity.
+	 * Set the Conekta ID for the entity.
 	 *
-	 * @param  string  $stripe_id
+	 * @param  string  $conekta_id
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function setStripeId($stripe_id);
+	public function setConektaId($conekta_id);
 
 	/**
 	 * Get the current subscription ID.
 	 *
 	 * @return string
 	 */
-	public function getStripeSubscription();
+	public function getConektaSubscription();
 
 	/**
 	 * Set the current subscription ID.
@@ -149,7 +149,7 @@ interface BillableInterface {
 	 * @param  string  $subscription_id
 	 * @return \Laravel\Cashier\BillableInterface
 	 */
-	public function setStripeSubscription($subscription_id);
+	public function setConektaSubscription($subscription_id);
 
 	/**
 	 * Get the last four digits of the entity's credit card.
