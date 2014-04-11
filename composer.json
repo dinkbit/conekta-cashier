@@ -14,7 +14,6 @@
         "illuminate/filesystem": "~4.1",
         "illuminate/support": "~4.1",
         "nesbot/carbon": "~1.0",
-        "stripe/stripe-php": "~1.9",
         "conekta/conekta-php": "v1.9.1",
         "symfony/http-kernel": "~2.3"
     },
