@@ -35,7 +35,7 @@ class AddCashierColumns extends Migration {
 		Schema::table('cashier_table', function(Blueprint $table)
 		{
 			$table->dropColumn(
-				'stripe_active', 'stripe_id', 'stripe_subscription', 'stripe_plan', 'card_type', 'last_four', 'trial_ends_at', 'subscription_ends_at'
+				'conekta_active', 'conekta_id', 'conekta_subscription', 'conekta_plan', 'card_type', 'last_four', 'trial_ends_at', 'subscription_ends_at'
 			);
 		});
 	}
