@@ -50,7 +50,7 @@ class Customer extends Conekta_Customer {
 	 * @param  array  $params
 	 * @return void
 	 */
-	protected function createSubscription(array $params)
+	public function createSubscription(array $params)
 	{
 		return $this->subscription = $this->subscriptions->create($params);
 	}

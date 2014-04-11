@@ -1,6 +1,7 @@
 <?php namespace Laravel\Cashier;
 
 use Carbon\Carbon;
+use Conekta;
 use Conekta_Invoice, Conekta_Customer;
 
 class ConektaGateway {
@@ -63,6 +64,7 @@ class ConektaGateway {
 	 */
 	public function __construct(BillableInterface $billable, $plan = null)
 	{
+		Conekta::setApiKey($billable->getConektaKey());
 		$this->plan = $plan;
 		$this->billable = $billable;
 	}
@@ -71,15 +73,16 @@ class ConektaGateway {
 	 * Subscribe to the plan for the first time.
 	 *
 	 * @param  string  $token
-	 * @param  string  $description
+	 * @param  string  $name
+	 * @param  string  $email
 	 * @param  object|null  $customer
 	 * @return void
 	 */
-	public function create($token, $description = '', $customer = null)
+	public function create($token, $name = '', $email = '', $customer = null)
 	{
 		if ( ! $customer)
 		{
-			$customer = $this->createConektaCustomer($token, $description);
+			$customer = $this->createConektaCustomer($token, $name, $email);
 		}
 
 		$this->billable->setConektaSubscription(
@@ -442,15 +445,16 @@ class ConektaGateway {
 	 * Create a new Conekta customer instance.
 	 *
 	 * @param  string  $token
-	 * @param  string  $description
+	 * @param  string  $name
+	 * @param  string  $email
 	 * @return \Conekta_Customer
 	 */
-	public function createConektaCustomer($token, $description)
+	public function createConektaCustomer($token, $name, $email)
 	{
 		$customer = Conekta_Customer::create([
-			'card' => $token,
-			'description' => $description,
-
+			'cards' => array($token),
+			'name' => $name,
+			'email' => $email
 		], $this->getConektaKey());
 
 		return $this->getConektaCustomer($customer->id);
