@@ -17,7 +17,7 @@ class Customer extends Conekta_Customer {
 	 */
 	public static function retrieve($id, $apiKey = null)
 	{
-		return self::_scopedRetrieve(get_called_class(), $id, $apiKey);
+		return self::_scpFind(get_called_class(), $id);
 	}
 
 	/**
@@ -38,21 +38,18 @@ class Customer extends Conekta_Customer {
 	 */
 	public function findSubscription($id)
 	{
-		foreach ($this->subscriptions->all()->data as $subscription)
-		{
-			if ($subscription->id == $id) return $subscription;
-		}
+		if ($this->subscription->id == $id) return $this->subscription;
 	}
 
 	/**
 	 * Create the current subscription with the given data.
 	 *
-	 * @param  array  $params
+	 * @param  $params
 	 * @return void
 	 */
-	public function createSubscription(array $params)
+	public function _createSubscription($params = null)
 	{
-		return $this->subscription = $this->subscriptions->create($params);
+		return $this->subscription = $this->createSubscription(array('plan' => $params['plan']));
 	}
 
 	/**
@@ -65,7 +62,7 @@ class Customer extends Conekta_Customer {
 	{
 		if (is_null($this->subscription))
 		{
-			return $this->createSubscription($params);
+			return $this->_createSubscription($params);
 		}
 		else
 		{

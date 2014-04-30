@@ -467,12 +467,13 @@ class ConektaGateway {
 	 */
 	public function getConektaCustomer($id = null)
 	{
-		$customer = Customer::retrieve($id ?: $this->billable->getConektaId(), $this->getConektaKey());
+		$customer = Customer::retrieve($id ?: $this->billable->getConektaId());
 
-		if ($this->usingMultipleSubscriptionApi($customer))
-		{
-			$customer->subscription = $customer->findSubscription($this->billable->getConektaSubscription());
-		}
+		// if ($this->usingMultipleSubscriptionApi($customer))
+		// {
+		// 	$customer->subscription = $customer->findSubscription($this->billable->getConektaSubscription());
+		// }
+		//$customer->subscription = $customer->findSubscription($this->billable->getConektaSubscription());
 
 		return $customer;
 	}
