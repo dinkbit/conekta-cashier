@@ -436,7 +436,9 @@ class ConektaGateway {
 				->setConektaId($customer->id)
 				->setConektaPlan($plan ?: $this->plan)
 				->setLastFourCardDigits($this->getLastFourCardDigits($customer))
+				->setCardType($this->getCardType($customer))
 				->setConektaIsActive(true)
+				->setTrialEndDate($this->getTrialEndForCustomer($customer))
 				->setSubscriptionEndDate(null)
 				->saveBillableInstance();
 	}
@@ -469,12 +471,6 @@ class ConektaGateway {
 	{
 		$customer = Customer::retrieve($id ?: $this->billable->getConektaId());
 
-		// if ($this->usingMultipleSubscriptionApi($customer))
-		// {
-		// 	$customer->subscription = $customer->findSubscription($this->billable->getConektaSubscription());
-		// }
-		//$customer->subscription = $customer->findSubscription($this->billable->getConektaSubscription());
-
 		return $customer;
 	}
 
@@ -499,7 +495,18 @@ class ConektaGateway {
 	 */
 	protected function getLastFourCardDigits($customer)
 	{
-		return $customer->cards->retrieve($customer->default_card)->last4;
+		return $customer->cards[0]->last4;
+	}
+
+	/**
+	 * Get the last four credit card digits for a customer.
+	 *
+	 * @param  \Conekta_Customer  $customer
+	 * @return string
+	 */
+	protected function getCardType($customer)
+	{
+		return $customer->cards[0]->brand;
 	}
 
 	/**

@@ -15,9 +15,14 @@ class Customer extends Conekta_Customer {
 	/**
 	 * {@inheritdoc}
 	 */
+
 	public static function retrieve($id, $apiKey = null)
 	{
-		return self::_scpFind(get_called_class(), $id);
+		$class = get_called_class();
+		//var_dump($class);
+		// $class = self::_getBase($class, 'className', $class);
+		//dd($class);
+		return self::_scpFind($class, $id);
 	}
 
 	/**

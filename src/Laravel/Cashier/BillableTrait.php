@@ -384,6 +384,28 @@ trait BillableTrait {
 	}
 
 	/**
+	 * Get the brand of the entity's credit card.
+	 *
+	 * @return string
+	 */
+	public function getCardType()
+	{
+		return $this->card_type;
+	}
+
+	/**
+	 * Set the brand of the entity's credit card.
+	 *
+	 * @return \Laravel\Cashier\BillableInterface
+	 */
+	public function setCardType($type)
+	{
+		$this->card_type = $type;
+
+		return $this;
+	}
+
+	/**
 	 * Get the date on which the trial ends.
 	 *
 	 * @return \DateTime
