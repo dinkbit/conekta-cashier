@@ -636,9 +636,9 @@ class ConektaGateway {
 	 */
 	public function getTrialEndForCustomer($customer)
 	{
-		if (isset($customer->subscription) && isset($customer->subscription->trial_end))
+		if (isset($customer->subscription) && $customer->subscription->status == 'in_trial' && isset($customer->subscription->billing_cycle_end))
 		{
-			return Carbon::createFromTimestamp($customer->subscription->trial_end);
+			return Carbon::createFromTimestamp($customer->subscription->billing_cycle_end);
 		}
 	}
 
