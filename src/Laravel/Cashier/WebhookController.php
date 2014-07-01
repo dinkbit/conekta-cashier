@@ -18,7 +18,7 @@ class WebhookController extends Controller {
 
 		switch ($payload['type'])
 		{
-			case 'invoice.payment_failed':
+			case 'subscription.payment_failed':
 				return $this->handleFailedPayment($payload);
 		}
 	}
