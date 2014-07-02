@@ -161,9 +161,15 @@ class ConektaGateway {
 	 */
 	public function resume($token = null)
 	{
-		$this->noProrate()->skipTrial()->create($token, '', $this->getConektaCustomer());
+		$customer = $this->getConektaCustomer();
+
+		$plan = $customer->subscription->plan_id;
+
+		$customer->subscription->resume();
 
 		$this->billable->setTrialEndDate(null)->saveBillableInstance();
+
+		$this->updateLocalConektaData($this->getConektaCustomer(), $plan);
 	}
 
 	/**
@@ -370,14 +376,53 @@ class ConektaGateway {
 	 */
 	protected function getSubscriptionEndTimestamp($customer)
 	{
-		if ( ! is_null($customer->subscription->trial_end) && $customer->subscription->trial_end > time())
-		{
-			return $customer->subscription->trial_end;
+		// if ( ! is_null($customer->subscription->billing_cycle_end) && $customer->subscription->billing_cycle_end > time())
+		// {
+		// 	return $customer->subscription->billing_cycle_end;
+		// }
+		// else
+		// {
+			return $customer->subscription->billing_cycle_end;
+		// }
+	}
+
+	/**
+	 * Remove the credit card attached to the entity.
+	 *
+	 * @param  string  $token
+	 * @return void
+	 */
+	public function removeCard()
+	{
+		$customer = $this->getConektaCustomer();
+
+		$plan = $customer->subscription->plan_id;
+
+		if(!empty($customer->cards[0])){
+			$customer->cards[0]->delete();
 		}
-		else
-		{
-			return $customer->subscription->current_period_end;
-		}
+
+		$this->updateLocalConektaData($this->getConektaCustomer(), $plan);
+	}
+
+	/**
+	 * Add a credit card to the entity.
+	 *
+	 * @param  string  $token
+	 * @return void
+	 */
+
+	public function addCard($token)
+	{
+		$customer = $this->getConektaCustomer();
+
+		$plan = $customer->subscription->plan_id;
+
+		$customer->createCard([
+			'token' => $token,
+		]);
+
+		$this->updateLocalConektaData($this->getConektaCustomer(), $plan);
 	}
 
 	/**
@@ -390,10 +435,18 @@ class ConektaGateway {
 	{
 		$customer = $this->getConektaCustomer();
 
-		$customer->updateSubscription([
-			'plan' => $plan = $customer->subscription->plan->id,
-			'card' => $token,
-		]);
+		$plan = $customer->subscription->plan_id;
+
+		if(empty($customer->cards[0]))
+		{
+			$customer->createCard([
+				'token' => $token,
+			]);
+		}else{
+			$customer->cards[0]->update([
+				'token' => $token,
+			]);
+		}
 
 		$this->updateLocalConektaData($this->getConektaCustomer(), $plan);
 	}
@@ -495,6 +548,8 @@ class ConektaGateway {
 	 */
 	protected function getLastFourCardDigits($customer)
 	{
+		if(empty($customer->cards[0])) return null;
+
 		return $customer->cards[0]->last4;
 	}
 
@@ -506,6 +561,8 @@ class ConektaGateway {
 	 */
 	protected function getCardType($customer)
 	{
+		if(empty($customer->cards[0])) return null;
+
 		return $customer->cards[0]->brand;
 	}
 
