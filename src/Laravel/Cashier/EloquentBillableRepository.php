@@ -12,7 +12,7 @@ class EloquentBillableRepository implements BillableRepositoryInterface {
 	 */
 	public function find($conektaId)
 	{
-		$model = $this->createCashierModel(Config::get('services.conekta.model'));
+		$model = $this->createCashierModel(Config::get('conekta.model'));
 
 		return $model->where($model->getConektaIdName(), $conektaId)->first();
 	}

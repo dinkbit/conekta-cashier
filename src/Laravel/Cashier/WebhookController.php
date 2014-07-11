@@ -21,6 +21,8 @@ class WebhookController extends Controller {
 			case 'subscription.payment_failed':
 				return $this->handleFailedPayment($payload);
 		}
+
+		return new Response('No action taken', 200);
 	}
 
 	/**
@@ -31,9 +33,10 @@ class WebhookController extends Controller {
 	 */
 	protected function handleFailedPayment(array $payload)
 	{
+
 		if ($this->tooManyFailedPayments($payload))
 		{
-			$billable = $this->getBillable($payload['data']['object']['customer']);
+			$billable = $this->getBillable($payload['data']['object']['customer_id']);
 
 			if ($billable) $billable->subscription()->cancel();
 		}
@@ -49,7 +52,7 @@ class WebhookController extends Controller {
 	 */
 	protected function tooManyFailedPayments(array $payload)
 	{
-		return $payload['data']['object']['attempt_count'] > 3;
+		return $payload['webhook_logs'][0]['failed_attempts'] >= 3;
 	}
 
 	/**

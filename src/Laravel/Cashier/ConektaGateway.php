@@ -80,6 +80,7 @@ class ConektaGateway {
 	 */
 	public function create($token, $name = '', $email = '', $customer = null)
 	{
+
 		if ( ! $customer)
 		{
 			$customer = $this->createConektaCustomer($token, $name, $email);
@@ -161,15 +162,11 @@ class ConektaGateway {
 	 */
 	public function resume($token = null)
 	{
-		$customer = $this->getConektaCustomer();
 
-		$plan = $customer->subscription->plan_id;
-
-		$customer->subscription->resume();
+		$this->noProrate()->skipTrial()->create($token, null, null, $this->getConektaCustomer());
 
 		$this->billable->setTrialEndDate(null)->saveBillableInstance();
 
-		$this->updateLocalConektaData($this->getConektaCustomer(), $plan);
 	}
 
 	/**

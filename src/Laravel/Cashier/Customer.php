@@ -19,9 +19,6 @@ class Customer extends Conekta_Customer {
 	public static function retrieve($id, $apiKey = null)
 	{
 		$class = get_called_class();
-		//var_dump($class);
-		// $class = self::_getBase($class, 'className', $class);
-		//dd($class);
 		return self::_scpFind($class, $id);
 	}
 
@@ -71,26 +68,16 @@ class Customer extends Conekta_Customer {
 		}
 		else
 		{
-			return $this->saveSubscription($params);
+			$billable = $this->getBillable($this->id);
+
+			if($billable){
+				if($billable->onTrial()){
+					$this->subscription->resume();
+				}
+			}
+			
+			return $this->_createSubscription($params);
 		}
-	}
-
-	/**
-	 * Save the current subscription with the given parameters.
-	 *
-	 * @param  array  $params
-	 * @return \Conekta_Subscription
-	 */
-	protected function saveSubscription($params)
-	{
-		foreach ($params as $key => $value)
-		{
-			$this->subscription->{$key} = $value;
-		}
-
-		$this->subscription->save();
-
-		return $this->subscription;
 	}
 
 	/**
@@ -102,6 +89,17 @@ class Customer extends Conekta_Customer {
 	public function cancelSubscription($params = null)
 	{
 		return $this->subscription->cancel($params);
+	}
+
+	/**
+	 * Get the user entity by Conekta ID.
+	 *
+	 * @param  string  $conektaId
+	 * @return \Laravel\Cashier\BillableInterface
+	 */
+	protected function getBillable($conektaId)
+	{
+		return \App::make('Laravel\Cashier\BillableRepositoryInterface')->find($conektaId);
 	}
 
 }
