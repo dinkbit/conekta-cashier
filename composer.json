@@ -14,7 +14,7 @@
         "illuminate/filesystem": "~4.1",
         "illuminate/support": "~4.1",
         "nesbot/carbon": "~1.0",
-        "conekta/conekta-php": "v1.9.3",
+        "conekta/conekta-php": "v1.*",
         "symfony/http-kernel": "~2.3"
     },
     "require-dev": {
