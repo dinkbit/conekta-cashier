@@ -1,12 +1,20 @@
 {
     "name": "dinkbit/conekta-cashier",
     "description": "",
-    "keywords": ["dinkbit", "conekta", "billing"],
+    "keywords": ["dinkbit", "conekta", "laravel", "billing"],
     "license": "MIT",
     "authors": [
         {
+            "name": "dinkbit",
+            "email": "support@dinkbit.com",
+            "homepage": "http://dinkbit.com",
+            "role": "Developer"
+        },
+        {
             "name": "Rafael Masri",
-            "email": "rafael.masri@dinkbit.com"
+            "email": "rafael.masri@dinkbit.com",
+            "homepage": "http://rafaelmasri.com",
+            "role": "Developer"
         }
     ],
     "require": {

@@ -6,26 +6,23 @@ by [dinkbit](<http://dinkbit.com>)
 - [Configuration](#configuration)
 - [Subscribing To A Plan](#subscribing-to-a-plan)
 - [No Card Up Front](#no-card-up-front)
-- [Swapping Subscriptions](#swapping-subscriptions)
-- [Subscription Quantity](#subscription-quantity)
 - [Cancelling A Subscription](#cancelling-a-subscription)
 - [Resuming A Subscription](#resuming-a-subscription)
 - [Checking Subscription Status](#checking-subscription-status)
 - [Handling Failed Payments](#handling-failed-payments)
-- [Invoices](#invoices)
 
 <a name="configuration"></a>
 ## Configuration
 
 > **Note:** Because of its use of traits, Conekta-Cashier requires PHP 5.4 or greater.
 
-dinkbit Conekta-Cashier provides an expressive, fluent interface to [Stripe's](https://stripe.com) subscription billing services.
+dinkbit Conekta-Cashier provides an expressive, fluent interface to [Conekta's](https://conekta.io) subscription billing services.
 
 #### Composer
 
 First, add the Conekta-Cashier package to your `composer.json` file:
 
-	"dinkbit/conekta-cashier": "~1.0"
+	"dinkbit/conekta-cashier": "dev-master"
 
 #### Service Provider
 
@@ -52,18 +49,18 @@ class User extends Eloquent implements BillableInterface {
 }
 ```
 
-#### Stripe Key
+#### Conekta Key
 
-Finally, set your Stripe key in one of your bootstrap files:
+Finally, set your Conekta key in one of your bootstrap files:
 
 ```php
-User::setStripeKey('stripe-key');
+User::setConektaKey('conekta-key');
 ```
 
 <a name="subscribing-to-a-plan"></a>
 ## Subscribing To A Plan
 
-Once you have a model instance, you can easily subscribe that user to a given Stripe plan:
+Once you have a model instance, you can easily subscribe that user to a given Conekta plan:
 
 ```php
 $user = User::find(1);
@@ -75,11 +72,10 @@ If you would like to apply a coupon when creating the subscription, you may use 
 
 ```php
 $user->subscription('monthly')
-     ->withCoupon('code')
      ->create($creditCardToken);
 ```
 
-The `subscription` method will automatically create the Stripe subscription, as well as update your database with Stripe customer ID and other relevant billing information. If your plan includes a trial, the trial end date will also automatically be set on the user record.
+The `subscription` method will automatically create the Conekta subscription, as well as update your database with Conekta customer ID and other relevant billing information. If your plan includes a trial, the trial end date will also automatically be set on the user record.
 
 If your plan has a trial period, make sure to set the trial end date on your model after subscribing:
 
@@ -106,35 +102,7 @@ $user->trial_ends_at = Carbon::now()->addDays(14);
 $user->save();
 ```
 
-<a name="swapping-subscriptions"></a>
-## Swapping Subscriptions
 
-To swap a user to a new subscription, use the `swap` method:
-
-```php
-$user->subscription('premium')->swap();
-```
-
-If the user is on trial, the trial will be maintained as normal. Also, if a "quantity" exists for the subscription, that quantity will also be maintained.
-
-<a name="subscription-quantity"></a>
-## Subscription Quantity
-
-Sometimes subscriptions are affected by "quantity". For example, your application might charge $10 per month per user on an account. To easily increment or decrement your subscription quantity, use the `increment` and `decrement` methods:
-
-```php
-$user = User::find(1);
-
-$user->subscription()->increment();
-
-// Add five to the subscription's current quantity...
-$user->subscription()->increment(5)
-
-$user->subscription->decrement();
-
-// Subtract five to the subscription's current quantity...
-$user->subscription()->decrement(5)
-```
 
 <a name="cancelling-a-subscription"></a>
 ## Cancelling A Subscription
@@ -224,12 +192,12 @@ if ($user->everSubscribed())
 What if a customer's credit card expires? No worries - Conekta-Cashier includes a Webhook controller that can easily cancel the customer's subscription for you. Just point a route to the controller:
 
 ```php
-Route::post('stripe/webhook', 'dinkbit\ConektaCashier\WebhookController@handleWebhook');
+Route::post('conekta/webhook', 'dinkbit\ConektaCashier\WebhookController@handleWebhook');
 ```
 
-That's it! Failed payments will be captured and handled by the controller. The controller will cancel the customer's subscription after three failed payment attempts. The `stripe/webhook` URI in this example is just for example. You will need to configure the URI in your Stripe settings.
+That's it! Failed payments will be captured and handled by the controller. The controller will cancel the customer's subscription after three failed payment attempts. The `conekta/webhook` URI in this example is just for example. You will need to configure the URI in your Conekta settings.
 
-If you have additional Stripe webhook events you would like to handle, simply extend the Webhook controller:
+If you have additional Conekta webhook events you would like to handle, simply extend the Webhook controller:
 
 ```php
 class WebhookController extends dinkbit\ConektaCashier\WebhookController {
@@ -245,32 +213,4 @@ class WebhookController extends dinkbit\ConektaCashier\WebhookController {
 }
 ```
 
-> **Note:** In addition to updating the subscription information in your database, the Webhook controller will also cancel the subscription via the Stripe API.
-
-<a name="invoices"></a>
-## Invoices
-
-You can easily retrieve an array of a user's invoices using the `invoices` method:
-
-```php
-$invoices = $user->invoices();
-```
-
-When listing the invoices for the customer, you may use these helper methods to display the relevant invoice information:
-
-```php
-{{ $invoice->id }}
-
-{{ $invoice->dateString() }}
-
-{{ $invoice->dollars() }}
-```
-
-Use the `downloadInvoice` method to generate a PDF download of the invoice. Yes, it's really this easy:
-
-```php
-return $user->downloadInvoice($invoice->id, [
-	'vendor'  => 'Your Company',
-	'product' => 'Your Product',
-]);
-```
+> **Note:** In addition to updating the subscription information in your database, the Webhook controller will also cancel the subscription via the Conekta API.
