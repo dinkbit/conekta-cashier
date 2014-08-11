@@ -1,7 +1,7 @@
 <?php
 
 use Mockery as m;
-use Laravel\Cashier\LineItem;
+use dinkbit\ConektaCashier\LineItem;
 
 class LineItemTest extends PHPUnit_Framework_TestCase {
 

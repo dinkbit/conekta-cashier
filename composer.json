@@ -1,7 +1,7 @@
 {
-    "name": "laravel/cashier",
+    "name": "dinkbit/conekta-cashier",
     "description": "",
-    "keywords": ["laravel", "conekta", "billing"],
+    "keywords": ["dinkbit", "conekta", "billing"],
     "license": "MIT",
     "authors": [
         {
@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Laravel\\Cashier\\": "src/"
+            "dinkbit\\ConektaCashier\\": "src/"
         }
     }
 }

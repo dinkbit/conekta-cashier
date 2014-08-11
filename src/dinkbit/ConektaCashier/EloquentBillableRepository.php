@@ -1,4 +1,4 @@
-<?php namespace Laravel\Cashier;
+<?php namespace dinkbit\ConektaCashier;
 
 use Illuminate\Support\Facades\Config;
 
@@ -8,7 +8,7 @@ class EloquentBillableRepository implements BillableRepositoryInterface {
 	 * Find a BillableInterface implementation by Conekta ID.
 	 *
 	 * @param  string  $conektaId
-	 * @return \Laravel\Cashier\BillableInterface
+	 * @return \dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function find($conektaId)
 	{
@@ -21,7 +21,7 @@ class EloquentBillableRepository implements BillableRepositoryInterface {
 	 * Create a new instance of the Auth model.
 	 *
 	 * @param  string  $model
-	 * @return \Laravel\Cashier\BillableInterface
+	 * @return \dinkbit\ConektaCashier\BillableInterface
 	 */
 	protected function createCashierModel($class)
 	{

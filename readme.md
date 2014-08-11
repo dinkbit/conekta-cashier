@@ -26,7 +26,7 @@ First, add the Cashier package to your `composer.json` file:
 
 #### Service Provider
 
-Next, register the `Laravel\Cashier\CashierServiceProvider` in your `app` configuration file.
+Next, register the `dinkbit\ConektaCashier\CashierServiceProvider` in your `app` configuration file.
 
 #### Migration
 
@@ -37,8 +37,8 @@ Before using Cashier, we'll need to add several columns to your database. Don't 
 Next, add the BillableTrait and appropriate date mutators to your model definition:
 
 ```php
-use Laravel\Cashier\BillableTrait;
-use Laravel\Cashier\BillableInterface;
+use dinkbit\ConektaCashier\BillableTrait;
+use dinkbit\ConektaCashier\BillableInterface;
 
 class User extends Eloquent implements BillableInterface {
 
@@ -221,7 +221,7 @@ if ($user->everSubscribed())
 What if a customer's credit card expires? No worries - Cashier includes a Webhook controller that can easily cancel the customer's subscription for you. Just point a route to the controller:
 
 ```php
-Route::post('stripe/webhook', 'Laravel\Cashier\WebhookController@handleWebhook');
+Route::post('stripe/webhook', 'dinkbit\ConektaCashier\WebhookController@handleWebhook');
 ```
 
 That's it! Failed payments will be captured and handled by the controller. The controller will cancel the customer's subscription after three failed payment attempts. The `stripe/webhook` URI in this example is just for example. You will need to configure the URI in your Stripe settings.
@@ -229,7 +229,7 @@ That's it! Failed payments will be captured and handled by the controller. The c
 If you have additional Stripe webhook events you would like to handle, simply extend the Webhook controller:
 
 ```php
-class WebhookController extends Laravel\Cashier\WebhookController {
+class WebhookController extends dinkbit\ConektaCashier\WebhookController {
 
 	public function handleWebhook()
 	{

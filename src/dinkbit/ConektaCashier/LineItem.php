@@ -1,4 +1,4 @@
-<?php namespace Laravel\Cashier;
+<?php namespace dinkbit\ConektaCashier;
 
 class LineItem {
 

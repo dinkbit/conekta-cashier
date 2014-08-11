@@ -1,4 +1,4 @@
-<?php namespace Laravel\Cashier;
+<?php namespace dinkbit\ConektaCashier;
 
 use Carbon\Carbon;
 use Conekta;
@@ -9,7 +9,7 @@ class ConektaGateway {
 	/**
 	 * The billable instance.
 	 *
-	 * @var \Laravel\Cashier\BillableInterface
+	 * @var \dinkbit\ConektaCashier\BillableInterface
 	 */
 	protected $billable;
 
@@ -58,7 +58,7 @@ class ConektaGateway {
 	/**
 	 * Create a new Conekta gateway instance.
 	 *
-	 * @param  \Laravel\Cashier\BillableInterface   $billable
+	 * @param  \dinkbit\ConektaCashier\BillableInterface   $billable
 	 * @param  string|null  $plan
 	 * @return void
 	 */
@@ -194,7 +194,7 @@ class ConektaGateway {
 	 * Find an invoice by ID.
 	 *
 	 * @param  string  $id
-	 * @return \Laravel\Cashier\Invoice|null
+	 * @return \dinkbit\ConektaCashier\Invoice|null
 	 */
 	public function findInvoice($id)
 	{
@@ -567,7 +567,7 @@ class ConektaGateway {
 	 * The coupon to apply to a new subscription.
 	 *
 	 * @param  string  $coupon
-	 * @return \Laravel\Cashier\ConektaGateway
+	 * @return \dinkbit\ConektaCashier\ConektaGateway
 	 */
 	public function withCoupon($coupon)
 	{
@@ -579,7 +579,7 @@ class ConektaGateway {
 	/**
 	 * Indicate that the plan change should be prorated.
 	 *
-	 * @return \Laravel\Cashier\ConektaGateway
+	 * @return \dinkbit\ConektaCashier\ConektaGateway
 	 */
 	public function prorate()
 	{
@@ -591,7 +591,7 @@ class ConektaGateway {
 	/**
 	 * Indicate that the plan change should not be prorated.
 	 *
-	 * @return \Laravel\Cashier\ConektaGateway
+	 * @return \dinkbit\ConektaCashier\ConektaGateway
 	 */
 	public function noProrate()
 	{
@@ -604,7 +604,7 @@ class ConektaGateway {
 	 * Set the quantity to apply to the subscription.
 	 *
 	 * @param  int  $quantity
-	 * @return \Laravel\Cashier\ConektaGateway
+	 * @return \dinkbit\ConektaCashier\ConektaGateway
 	 */
 	public function quantity($quantity)
 	{
@@ -616,7 +616,7 @@ class ConektaGateway {
 	/**
 	 * Indicate that no trial should be enforced on the operation.
 	 *
-	 * @return \Laravel\Cashier\ConektaGateway
+	 * @return \dinkbit\ConektaCashier\ConektaGateway
 	 */
 	public function skipTrial()
 	{
@@ -629,7 +629,7 @@ class ConektaGateway {
 	 * Specify the ending date of the trial.
 	 *
 	 * @param  \DateTime  $trialEnd
-	 * @return \Laravel\Cashier\ConektaGateway
+	 * @return \dinkbit\ConektaCashier\ConektaGateway
 	 */
 	public function trialFor(\DateTime $trialEnd)
 	{
@@ -663,7 +663,7 @@ class ConektaGateway {
 	/**
 	 * Maintain the days left of the current trial (if applicable).
 	 *
-	 * @return \Laravel\Cashier\ConektaGateway
+	 * @return \dinkbit\ConektaCashier\ConektaGateway
 	 */
 	public function maintainTrial()
 	{

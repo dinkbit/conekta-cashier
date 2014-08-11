@@ -1,4 +1,4 @@
-<?php namespace Laravel\Cashier;
+<?php namespace dinkbit\ConektaCashier;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;

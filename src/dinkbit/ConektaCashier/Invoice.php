@@ -1,4 +1,4 @@
-<?php namespace Laravel\Cashier;
+<?php namespace dinkbit\ConektaCashier;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\View;
@@ -11,7 +11,7 @@ class Invoice {
 	/**
 	 * The billable instance.
 	 *
-	 * @var \Laravel\Cashier\BillableInterface
+	 * @var \dinkbit\ConektaCashier\BillableInterface
 	 */
 	protected $billable;
 
@@ -25,7 +25,7 @@ class Invoice {
 	/**
 	 * Create a new invoice instance.
 	 *
-	 * @param  \Laravel\Cashier\BillableInterface  $billable
+	 * @param  \dinkbit\ConektaCashier\BillableInterface  $billable
 	 * @param  object
 	 * @return void
 	 */
@@ -335,7 +335,7 @@ class Invoice {
 	 * Set the filesystem instance.
 	 *
 	 * @param  \Illuminate\Filesystem\Filesystem
-	 * @return \Laravel\Cashier\Invoice
+	 * @return \dinkbit\ConektaCashier\Invoice
 	 */
 	public function setFiles(Filesystem $files)
 	{

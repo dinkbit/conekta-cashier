@@ -142,14 +142,14 @@ class BillableTraitTest extends PHPUnit_Framework_TestCase {
 
 }
 
-class BillableTraitTestStub implements Laravel\Cashier\BillableInterface {
-	use Laravel\Cashier\BillableTrait;
+class BillableTraitTestStub implements dinkbit\ConektaCashier\BillableInterface {
+	use dinkbit\ConektaCashier\BillableTrait;
 	public $cardUpFront = false;
 	public function save() {}
 }
 
-class BillableTraitCardUpFrontTestStub implements Laravel\Cashier\BillableInterface {
-	use Laravel\Cashier\BillableTrait;
+class BillableTraitCardUpFrontTestStub implements dinkbit\ConektaCashier\BillableInterface {
+	use dinkbit\ConektaCashier\BillableTrait;
 	public $cardUpFront = true;
 	public function save() {}
 }

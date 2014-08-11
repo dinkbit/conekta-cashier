@@ -1,4 +1,4 @@
-<?php namespace Laravel\Cashier;
+<?php namespace dinkbit\ConektaCashier;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -18,7 +18,7 @@ class CashierServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('laravel/cashier');
+		$this->package('dinkbit/conektacashier');
 	}
 
 	/**
@@ -28,7 +28,7 @@ class CashierServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app->bindShared('Laravel\Cashier\BillableRepositoryInterface', function()
+		$this->app->bindShared('dinkbit\ConektaCashier\BillableRepositoryInterface', function()
 		{
 			return new EloquentBillableRepository;
 		});
