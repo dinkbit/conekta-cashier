@@ -1,4 +1,7 @@
-# dinkbit Conekta-Cashier
+# Laravel Conekta-Cashier
+by [dinkbit](<http://dinkbit.com>)
+
+[![image](http://dinkbit.com/images/firmadinkbit.png)](<http://dinkbit.com>)
 
 - [Configuration](#configuration)
 - [Subscribing To A Plan](#subscribing-to-a-plan)
