@@ -1,4 +1,4 @@
-# Laravel Cashier
+# dinkbit Conekta-Cashier
 
 - [Configuration](#configuration)
 - [Subscribing To A Plan](#subscribing-to-a-plan)
@@ -14,15 +14,15 @@
 <a name="configuration"></a>
 ## Configuration
 
-> **Note:** Because of its use of traits, Cashier requires PHP 5.4 or greater.
+> **Note:** Because of its use of traits, Conekta-Cashier requires PHP 5.4 or greater.
 
-Laravel Cashier provides an expressive, fluent interface to [Stripe's](https://stripe.com) subscription billing services.
+dinkbit Conekta-Cashier provides an expressive, fluent interface to [Stripe's](https://stripe.com) subscription billing services.
 
 #### Composer
 
-First, add the Cashier package to your `composer.json` file:
+First, add the Conekta-Cashier package to your `composer.json` file:
 
-	"laravel/cashier": "~1.0"
+	"dinkbit/conekta-cashier": "~1.0"
 
 #### Service Provider
 
@@ -30,7 +30,7 @@ Next, register the `dinkbit\ConektaCashier\CashierServiceProvider` in your `app`
 
 #### Migration
 
-Before using Cashier, we'll need to add several columns to your database. Don't worry, you can use the `cashier:table` Artisan command to create a migration to add the necessary column. Once the migration has been created, simply run the `migrate` command.
+Before using Conekta-Cashier, we'll need to add several columns to your database. Don't worry, you can use the `cashier:table` Artisan command to create a migration to add the necessary column. Once the migration has been created, simply run the `migrate` command.
 
 #### Model Setup
 
@@ -142,7 +142,7 @@ Cancelling a subscription is a walk in the park:
 $user->subscription()->cancel();
 ```
 
-When a subscription is cancelled, Cashier will automatically set the `subscription_ends_at` column on your database. This column is used to know when the `subscribed` method should begin returning `false`. For example, if a customer cancels a subscription on March 1st, but the subscription was not scheduled to end until March 5th, the `subscribed` method will continue to return `true` until March 5th.
+When a subscription is cancelled, Conekta-Cashier will automatically set the `subscription_ends_at` column on your database. This column is used to know when the `subscribed` method should begin returning `false`. For example, if a customer cancels a subscription on March 1st, but the subscription was not scheduled to end until March 5th, the `subscribed` method will continue to return `true` until March 5th.
 
 <a name="resuming-a-subscription"></a>
 ## Resuming A Subscription
@@ -218,7 +218,7 @@ if ($user->everSubscribed())
 <a name="handling-failed-payments"></a>
 ## Handling Failed Payments
 
-What if a customer's credit card expires? No worries - Cashier includes a Webhook controller that can easily cancel the customer's subscription for you. Just point a route to the controller:
+What if a customer's credit card expires? No worries - Conekta-Cashier includes a Webhook controller that can easily cancel the customer's subscription for you. Just point a route to the controller:
 
 ```php
 Route::post('stripe/webhook', 'dinkbit\ConektaCashier\WebhookController@handleWebhook');
