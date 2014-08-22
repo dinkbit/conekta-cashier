@@ -1,7 +1,7 @@
 <?php
 
 use Mockery as m;
-use dinkbit\ConektaCashier\Invoice;
+use Dinkbit\ConektaCashier\Invoice;
 
 class InvoiceTest extends PHPUnit_Framework_TestCase {
 
@@ -13,21 +13,21 @@ class InvoiceTest extends PHPUnit_Framework_TestCase {
 
 	public function testGettingDollarTotalOfInvoice()
 	{
-		$invoice = new Invoice(m::mock('dinkbit\ConektaCashier\BillableInterface'), (object) ['total' => 10000]);
+		$invoice = new Invoice(m::mock('Dinkbit\ConektaCashier\BillableInterface'), (object) ['total' => 10000]);
 		$this->assertEquals('$100.00', $invoice->dollars());
 	}
 
 
 	public function testGettingSubtotal()
 	{
-		$invoice = new Invoice(m::mock('dinkbit\ConektaCashier\BillableInterface'), (object) ['subtotal' => 10000]);
+		$invoice = new Invoice(m::mock('Dinkbit\ConektaCashier\BillableInterface'), (object) ['subtotal' => 10000]);
 		$this->assertEquals(100.00, $invoice->subtotal());
 	}
 
 
 	public function testGettingLineItemsByType()
 	{
-		$invoice = new Invoice(m::mock('dinkbit\ConektaCashier\BillableInterface'), (object) [
+		$invoice = new Invoice(m::mock('Dinkbit\ConektaCashier\BillableInterface'), (object) [
 			'lines' => (object) [
 				'data' => [
 					(object) ['type' => 'foo', 'name' => 'taylor'],
@@ -40,8 +40,8 @@ class InvoiceTest extends PHPUnit_Framework_TestCase {
 		$lines = $invoice->lineItemsByType('foo');
 
 		$this->assertEquals(2, count($lines));
-		$this->assertInstanceOf('dinkbit\ConektaCashier\LineItem', $lines[0]);
-		$this->assertInstanceOf('dinkbit\ConektaCashier\LineItem', $lines[1]);
+		$this->assertInstanceOf('Dinkbit\ConektaCashier\LineItem', $lines[0]);
+		$this->assertInstanceOf('Dinkbit\ConektaCashier\LineItem', $lines[1]);
 		$this->assertEquals('taylor', $lines[0]->name);
 		$this->assertEquals('dayle', $lines[1]->name);
 	}
@@ -49,14 +49,14 @@ class InvoiceTest extends PHPUnit_Framework_TestCase {
 
 	public function testHasDiscountIndicatesIfDiscountWasApplied()
 	{
-		$invoice = new Invoice(m::mock('dinkbit\ConektaCashier\BillableInterface'), (object) ['total' => 10000, 'subtotal' => 20000]);
+		$invoice = new Invoice(m::mock('Dinkbit\ConektaCashier\BillableInterface'), (object) ['total' => 10000, 'subtotal' => 20000]);
 		$this->assertTrue($invoice->hasDiscount());
 	}
 
 
 	public function testDiscountCanBeRetrieved()
 	{
-		$invoice = new Invoice(m::mock('dinkbit\ConektaCashier\BillableInterface'), (object) ['total' => 10000, 'subtotal' => 20000]);
+		$invoice = new Invoice(m::mock('Dinkbit\ConektaCashier\BillableInterface'), (object) ['total' => 10000, 'subtotal' => 20000]);
 		$this->assertEquals(100.00, $invoice->discount());
 		$this->assertEquals('$100', $invoice->discountDollars());
 	}
@@ -64,7 +64,7 @@ class InvoiceTest extends PHPUnit_Framework_TestCase {
 
 	public function testCouponCanBeRetrieved()
 	{
-		$invoice = new Invoice(m::mock('dinkbit\ConektaCashier\BillableInterface'), (object) ['discount' => (object) ['coupon' => (object) ['id' => 'coupon-code']]]);
+		$invoice = new Invoice(m::mock('Dinkbit\ConektaCashier\BillableInterface'), (object) ['discount' => (object) ['coupon' => (object) ['id' => 'coupon-code']]]);
 		$this->assertEquals('coupon-code', $invoice->coupon());
 	}
 
@@ -72,7 +72,7 @@ class InvoiceTest extends PHPUnit_Framework_TestCase {
 	public function testDownloadingInvoiceReturnsResponse()
 	{
 		$data = ['vendor' => 'Vendor', 'product' => 'Product'];
-		$invoice = m::mock('dinkbit\ConektaCashier\Invoice[render,getPhantomProcess]', array(m::mock('dinkbit\ConektaCashier\BillableInterface'), new StdClass));
+		$invoice = m::mock('Dinkbit\ConektaCashier\Invoice[render,getPhantomProcess]', array(m::mock('Dinkbit\ConektaCashier\BillableInterface'), new StdClass));
 		$invoice->id = 'id';
 		$invoice->date = time();
 		$workPath = realpath(__DIR__.'/../src/Laravel/Cashier/work').'/'.md5('id').'.pdf';
@@ -101,7 +101,7 @@ class InvoiceTest extends PHPUnit_Framework_TestCase {
 		$url = 'url';
 		$__conektaInvoice = (object) ['id' => 1, 'date' => $date = time()];
 
-		$invoice = m::mock('dinkbit\ConektaCashier\Invoice', array(m::mock('dinkbit\ConektaCashier\BillableInterface'), $__conektaInvoice));
+		$invoice = m::mock('Dinkbit\ConektaCashier\Invoice', array(m::mock('Dinkbit\ConektaCashier\BillableInterface'), $__conektaInvoice));
 		$invoice->shouldReceive('date')->andReturn(Carbon\Carbon::createFromTimestamp($date));
 
 		/**

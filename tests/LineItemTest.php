@@ -1,7 +1,7 @@
 <?php
 
 use Mockery as m;
-use dinkbit\ConektaCashier\LineItem;
+use Dinkbit\ConektaCashier\LineItem;
 
 class LineItemTest extends PHPUnit_Framework_TestCase {
 

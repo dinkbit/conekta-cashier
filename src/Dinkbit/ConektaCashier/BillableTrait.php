@@ -1,4 +1,4 @@
-<?php namespace dinkbit\ConektaCashier;
+<?php namespace Dinkbit\ConektaCashier;
 
 use DateTime;
 use Carbon\Carbon;
@@ -37,8 +37,8 @@ trait BillableTrait {
 	/**
 	 * Get a new billing gateway instance for the given plan.
 	 *
-	 * @param  \dinkbit\ConektaCashier\PlanInterface|string|null  $plan
-	 * @return \dinkbit\ConektaCashier\ConektaGateway
+	 * @param  \Dinkbit\ConektaCashier\PlanInterface|string|null  $plan
+	 * @return \Dinkbit\ConektaCashier\ConektaGateway
 	 */
 	public function subscription($plan = null)
 	{
@@ -61,7 +61,7 @@ trait BillableTrait {
 	 * Find an invoice by ID.
 	 *
 	 * @param  string  $id
-	 * @return \dinkbit\ConektaCashier\Invoice|null
+	 * @return \Dinkbit\ConektaCashier\Invoice|null
 	 */
 	public function findInvoice($id)
 	{
@@ -72,7 +72,7 @@ trait BillableTrait {
 	 * Find an invoice or throw a 404 error.
 	 *
 	 * @param  string  $id
-	 * @return \dinkbit\ConektaCashier\Invoice
+	 * @return \Dinkbit\ConektaCashier\Invoice
 	 */
 	public function findInvoiceOrFail($id)
 	{
@@ -203,7 +203,7 @@ trait BillableTrait {
 	/**
 	 * Determine if the entity is on the given plan.
 	 *
-	 * @param  \dinkbit\ConektaCashier\PlanInterface|string  $plan
+	 * @param  \Dinkbit\ConektaCashier\PlanInterface|string  $plan
 	 * @return bool
 	 */
 	public function onPlan($plan)
@@ -249,7 +249,7 @@ trait BillableTrait {
 	 * Set whether the entity has a current Conekta subscription.
 	 *
 	 * @param  bool  $active
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setConektaIsActive($active = true)
 	{
@@ -261,7 +261,7 @@ trait BillableTrait {
 	/**
 	 * Set Conekta as inactive on the entity.
 	 *
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function deactivateConekta()
 	{
@@ -306,7 +306,7 @@ trait BillableTrait {
 	 * Set the Conekta ID for the entity.
 	 *
 	 * @param  string  $conekta_id
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setConektaId($conekta_id)
 	{
@@ -329,7 +329,7 @@ trait BillableTrait {
 	 * Set the current subscription ID.
 	 *
 	 * @param  string  $subscription_id
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setConektaSubscription($subscription_id)
 	{
@@ -352,7 +352,7 @@ trait BillableTrait {
 	 * Set the Conekta plan ID.
 	 *
 	 * @param  string  $plan
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setConektaPlan($plan)
 	{
@@ -374,7 +374,7 @@ trait BillableTrait {
 	/**
 	 * Set the last four digits of the entity's credit card.
 	 *
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setLastFourCardDigits($digits)
 	{
@@ -396,7 +396,7 @@ trait BillableTrait {
 	/**
 	 * Set the brand of the entity's credit card.
 	 *
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setCardType($type)
 	{
@@ -419,7 +419,7 @@ trait BillableTrait {
 	 * Set the date on which the trial ends.
 	 *
 	 * @param  \DateTime|null  $date
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setTrialEndDate($date)
 	{
@@ -442,7 +442,7 @@ trait BillableTrait {
 	 * Set the subscription end date for the entity.
 	 *
 	 * @param  \DateTime|null  $date
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setSubscriptionEndDate($date)
 	{

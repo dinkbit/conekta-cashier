@@ -1,4 +1,4 @@
-<?php namespace dinkbit\ConektaCashier;
+<?php namespace Dinkbit\ConektaCashier;
 
 use DateTime;
 
@@ -21,8 +21,8 @@ interface BillableInterface {
 	/**
 	 * Get a new billing builder instance for the given plan.
 	 *
-	 * @param  \dinkbit\ConektaCashier\PlanInterface|string|null  $plan
-	 * @return \dinkbit\ConektaCashier\Builder
+	 * @param  \Dinkbit\ConektaCashier\PlanInterface|string|null  $plan
+	 * @return \Dinkbit\ConektaCashier\Builder
 	 */
 	public function subscription($plan = null);
 
@@ -37,7 +37,7 @@ interface BillableInterface {
 	 * Find an invoice by ID.
 	 *
 	 * @param  string  $id
-	 * @return \dinkbit\ConektaCashier\Invoice|null
+	 * @return \Dinkbit\ConektaCashier\Invoice|null
 	 */
 	public function findInvoice($id);
 
@@ -80,7 +80,7 @@ interface BillableInterface {
 	/**
 	 * Determine if the entity is on the given plan.
 	 *
-	 * @param  \dinkbit\ConektaCashier\PlanInterface|string  $plan
+	 * @param  \Dinkbit\ConektaCashier\PlanInterface|string  $plan
 	 * @return bool
 	 */
 	public function onPlan($plan);
@@ -110,14 +110,14 @@ interface BillableInterface {
 	 * Set whether the entity has a current Conekta subscription.
 	 *
 	 * @param  bool  $active
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setConektaIsActive($active = true);
 
 	/**
 	 * Set Conekta as inactive on the entity.
 	 *
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function deactivateConekta();
 
@@ -132,7 +132,7 @@ interface BillableInterface {
 	 * Set the Conekta ID for the entity.
 	 *
 	 * @param  string  $conekta_id
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setConektaId($conekta_id);
 
@@ -147,7 +147,7 @@ interface BillableInterface {
 	 * Set the current subscription ID.
 	 *
 	 * @param  string  $subscription_id
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setConektaSubscription($subscription_id);
 
@@ -161,7 +161,7 @@ interface BillableInterface {
 	/**
 	 * Set the last four digits of the entity's credit card.
 	 *
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function setLastFourCardDigits($digits);
 

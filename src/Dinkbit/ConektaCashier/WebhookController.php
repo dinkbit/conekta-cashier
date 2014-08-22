@@ -1,4 +1,4 @@
-<?php namespace dinkbit\ConektaCashier;
+<?php namespace Dinkbit\ConektaCashier;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\App;
@@ -59,11 +59,11 @@ class WebhookController extends Controller {
 	 * Get the billable entity instance by Conekta ID.
 	 *
 	 * @param  string  $conektaId
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	protected function getBillable($conektaId)
 	{
-		return App::make('dinkbit\ConektaCashier\BillableRepositoryInterface')->find($conektaId);
+		return App::make('Dinkbit\ConektaCashier\BillableRepositoryInterface')->find($conektaId);
 	}
 
 	/**

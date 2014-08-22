@@ -26,7 +26,7 @@ First, add the Conekta-Cashier package to your `composer.json` file:
 
 #### Service Provider
 
-Next, register the `dinkbit\ConektaCashier\CashierServiceProvider` in your `app` configuration file.
+Next, register the `Dinkbit\ConektaCashier\CashierServiceProvider` in your `app` configuration file.
 
 #### Migration
 
@@ -37,8 +37,8 @@ Before using Conekta-Cashier, we'll need to add several columns to your database
 Next, add the BillableTrait and appropriate date mutators to your model definition:
 
 ```php
-use dinkbit\ConektaCashier\BillableTrait;
-use dinkbit\ConektaCashier\BillableInterface;
+use Dinkbit\ConektaCashier\BillableTrait;
+use Dinkbit\ConektaCashier\BillableInterface;
 
 class User extends Eloquent implements BillableInterface {
 
@@ -192,7 +192,7 @@ if ($user->everSubscribed())
 What if a customer's credit card expires? No worries - Conekta-Cashier includes a Webhook controller that can easily cancel the customer's subscription for you. Just point a route to the controller:
 
 ```php
-Route::post('conekta/webhook', 'dinkbit\ConektaCashier\WebhookController@handleWebhook');
+Route::post('conekta/webhook', 'Dinkbit\ConektaCashier\WebhookController@handleWebhook');
 ```
 
 That's it! Failed payments will be captured and handled by the controller. The controller will cancel the customer's subscription after three failed payment attempts. The `conekta/webhook` URI in this example is just for example. You will need to configure the URI in your Conekta settings.
@@ -200,7 +200,7 @@ That's it! Failed payments will be captured and handled by the controller. The c
 If you have additional Conekta webhook events you would like to handle, simply extend the Webhook controller:
 
 ```php
-class WebhookController extends dinkbit\ConektaCashier\WebhookController {
+class WebhookController extends Dinkbit\ConektaCashier\WebhookController {
 
 	public function handleWebhook()
 	{

@@ -142,14 +142,14 @@ class BillableTraitTest extends PHPUnit_Framework_TestCase {
 
 }
 
-class BillableTraitTestStub implements dinkbit\ConektaCashier\BillableInterface {
-	use dinkbit\ConektaCashier\BillableTrait;
+class BillableTraitTestStub implements Dinkbit\ConektaCashier\BillableInterface {
+	use Dinkbit\ConektaCashier\BillableTrait;
 	public $cardUpFront = false;
 	public function save() {}
 }
 
-class BillableTraitCardUpFrontTestStub implements dinkbit\ConektaCashier\BillableInterface {
-	use dinkbit\ConektaCashier\BillableTrait;
+class BillableTraitCardUpFrontTestStub implements Dinkbit\ConektaCashier\BillableInterface {
+	use Dinkbit\ConektaCashier\BillableTrait;
 	public $cardUpFront = true;
 	public function save() {}
 }

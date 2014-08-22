@@ -1,4 +1,4 @@
-<?php namespace dinkbit\ConektaCashier;
+<?php namespace Dinkbit\ConektaCashier;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;

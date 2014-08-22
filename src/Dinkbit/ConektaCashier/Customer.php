@@ -1,4 +1,4 @@
-<?php namespace dinkbit\ConektaCashier;
+<?php namespace Dinkbit\ConektaCashier;
 
 use Conekta_Customer;
 use Conekta_Subscription;
@@ -95,11 +95,11 @@ class Customer extends Conekta_Customer {
 	 * Get the user entity by Conekta ID.
 	 *
 	 * @param  string  $conektaId
-	 * @return \dinkbit\ConektaCashier\BillableInterface
+	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	protected function getBillable($conektaId)
 	{
-		return \App::make('dinkbit\ConektaCashier\BillableRepositoryInterface')->find($conektaId);
+		return \App::make('Dinkbit\ConektaCashier\BillableRepositoryInterface')->find($conektaId);
 	}
 
 }

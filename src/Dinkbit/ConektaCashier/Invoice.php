@@ -1,4 +1,4 @@
-<?php namespace dinkbit\ConektaCashier;
+<?php namespace Dinkbit\ConektaCashier;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\View;
@@ -11,7 +11,7 @@ class Invoice {
 	/**
 	 * The billable instance.
 	 *
-	 * @var \dinkbit\ConektaCashier\BillableInterface
+	 * @var \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	protected $billable;
 
@@ -25,7 +25,7 @@ class Invoice {
 	/**
 	 * Create a new invoice instance.
 	 *
-	 * @param  \dinkbit\ConektaCashier\BillableInterface  $billable
+	 * @param  \Dinkbit\ConektaCashier\BillableInterface  $billable
 	 * @param  object
 	 * @return void
 	 */
@@ -335,7 +335,7 @@ class Invoice {
 	 * Set the filesystem instance.
 	 *
 	 * @param  \Illuminate\Filesystem\Filesystem
-	 * @return \dinkbit\ConektaCashier\Invoice
+	 * @return \Dinkbit\ConektaCashier\Invoice
 	 */
 	public function setFiles(Filesystem $files)
 	{
