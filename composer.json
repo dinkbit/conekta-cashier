@@ -6,14 +6,12 @@
     "authors": [
         {
             "name": "dinkbit",
-            "email": "support@dinkbit.com",
-            "homepage": "http://dinkbit.com",
-            "role": "Developer"
+            "email": "developers@dinkbit.com",
+            "homepage": "https://github.com/laravel/cashier"
         },
         {
             "name": "Rafael Masri",
             "email": "rafael.masri@dinkbit.com",
-            "homepage": "http://rafaelmasri.com",
             "role": "Developer"
         }
     ],
