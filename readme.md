@@ -3,6 +3,20 @@ by [dinkbit](<http://dinkbit.com>)
 
 [![image](http://dinkbit.com/images/firmadinkbit.png)](<http://dinkbit.com>)
 
+___
+
+> **Warning**: Beta version.
+> 
+> Based on [Laravel Cashier](https://github.com/laravel/cashier)
+
+##### Todo
+
+- [ ] Update and review tests 
+- [ ] Change StripeGateway Test for ConektaGateway Test
+- [ ] Add Invoices support
+___
+
+
 - [Configuration](#configuration)
 - [Subscribing To A Plan](#subscribing-to-a-plan)
 - [No Card Up Front](#no-card-up-front)
@@ -49,12 +63,24 @@ class User extends Eloquent implements BillableInterface {
 }
 ```
 
+#### Create the Conekta config file 
+
+Create the configuration file `app/config/conekta.php` and setup your keys and the Model on which you will use Cashier
+
+```php
+	return array(
+		'secret_key' => 'conekta-key',
+		'public_key' => 'public-conekta-key',
+		'model' => 'User'
+	);
+```
+
 #### Conekta Key
 
 Finally, set your Conekta key in one of your bootstrap files:
 
 ```php
-User::setConektaKey('conekta-key');
+User::setConektaKey(Config::get('conekta.secret_key'));
 ```
 
 <a name="subscribing-to-a-plan"></a>
