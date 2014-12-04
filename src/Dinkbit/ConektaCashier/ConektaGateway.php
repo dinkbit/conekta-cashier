@@ -318,7 +318,7 @@ class ConektaGateway {
 	{
 		$customer = $this->getConektaCustomer();
 
-		if ($customer->subscription)
+		if ($customer->subscription && $this->billable->conektaIsActive())
 		{
 			if ($atPeriodEnd)
 			{
@@ -332,7 +332,9 @@ class ConektaGateway {
 			}
 		}
 
-		$customer->cancelSubscription(['at_period_end' => $atPeriodEnd]);
+		if($this->billable->conektaIsActive()){
+			$customer->cancelSubscription(['at_period_end' => $atPeriodEnd]);
+		}
 
 		if ($atPeriodEnd)
 		{
