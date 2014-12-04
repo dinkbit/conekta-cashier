@@ -51,7 +51,7 @@ class Customer extends Conekta_Customer {
 	 */
 	public function _createSubscription($params = null)
 	{
-		return $this->subscription = $this->createSubscription(array('plan' => $params['plan']));
+		return $this->subscription = $this->createSubscription($params);
 	}
 
 	/**
@@ -74,10 +74,25 @@ class Customer extends Conekta_Customer {
 				if($billable->onTrial()){
 					$this->subscription->resume();
 				}
+
+				if($billable->expired() || $billable->cancelled()){
+					return $this->_createSubscription($params);
+				}
 			}
-			
-			return $this->_createSubscription($params);
+
+			return $this->_updateSubscription($params);
 		}
+	}
+
+	/**
+	 * Update the current subscription with the given data.
+	 *
+	 * @param  $params
+	 * @return void
+	 */
+	public function _updateSubscription($params = null)
+	{
+		return $this->subscription = $this->subscription->update($params);
 	}
 
 	/**
