@@ -17,7 +17,7 @@ class AddCashierColumns extends Migration {
 			$table->tinyInteger('conekta_active')->default(0);
 			$table->string('conekta_id')->nullable();
 			$table->string('conekta_subscription')->nullable();
-			$table->string('conekta_plan', 25)->nullable();
+			$table->string('conekta_plan', 35)->nullable();
 			$table->string('card_type', 30)->nullable();
 			$table->string('last_four', 4)->nullable();
 			$table->timestamp('trial_ends_at')->nullable();

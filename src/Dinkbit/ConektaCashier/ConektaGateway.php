@@ -447,7 +447,10 @@ class ConektaGateway {
 			]);
 		}
 
-		$this->updateLocalConektaData($this->getConektaCustomer(), $plan);
+		$this->billable
+				->setLastFourCardDigits($this->getLastFourCardDigits($customer))
+				->setCardType($this->getCardType($customer))
+				->saveBillableInstance();
 	}
 
 	/**
