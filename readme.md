@@ -6,12 +6,12 @@ by [dinkbit](<http://dinkbit.com>)
 ___
 
 > **Warning**: Beta version.
-> 
+>
 > Based on [Laravel Cashier](https://github.com/laravel/cashier)
 
 ##### Todo
 
-- [ ] Update and review tests 
+- [ ] Update and review tests
 - [ ] Change StripeGateway Test for ConektaGateway Test
 - [ ] Add Invoices support
 ___
@@ -36,7 +36,7 @@ dinkbit Conekta-Cashier provides an expressive, fluent interface to [Conekta's](
 
 First, add the Conekta-Cashier package to your `composer.json` file:
 
-	"dinkbit/conekta-cashier": "dev-master"
+	"dinkbit/conekta-cashier": "~0.8"
 
 #### Service Provider
 
@@ -63,7 +63,7 @@ class User extends Eloquent implements BillableInterface {
 }
 ```
 
-#### Create the Conekta config file 
+#### Create the Conekta config file
 
 Create the configuration file `app/config/conekta.php` and setup your keys and the Model on which you will use Cashier
 
