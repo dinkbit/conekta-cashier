@@ -1,9 +1,12 @@
-<?php namespace Dinkbit\ConektaCashier;
+<?php
+
+namespace Dinkbit\ConektaCashier;
 
 use Illuminate\Support\Facades\Config;
+use Dinkbit\ConektaCashier\Contracts\Billable as BillableContract;
 
-class EloquentBillableRepository implements BillableRepositoryInterface {
-
+class EloquentBillableRepository implements BillableRepositoryInterface
+{
 	/**
 	 * Find a BillableInterface implementation by Conekta ID.
 	 *
@@ -12,7 +15,7 @@ class EloquentBillableRepository implements BillableRepositoryInterface {
 	 */
 	public function find($conektaId)
 	{
-		$model = $this->createCashierModel(Config::get('conekta.model'));
+		$model = $this->createCashierModel(Config::get('services.conekta.model'));
 
 		return $model->where($model->getConektaIdName(), $conektaId)->first();
 	}
@@ -27,9 +30,8 @@ class EloquentBillableRepository implements BillableRepositoryInterface {
 	{
 		$model = new $class;
 
-		if ( ! $model instanceof BillableInterface)
-		{
-			throw new \InvalidArgumentException("Model does not implement BillableInterface.");
+		if (! $model instanceof BillableContract) {
+			throw new \InvalidArgumentException("Model does not implement Billable.");
 		}
 
 		return $model;

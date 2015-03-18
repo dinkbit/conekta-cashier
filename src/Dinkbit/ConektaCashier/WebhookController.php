@@ -1,12 +1,18 @@
-<?php namespace Dinkbit\ConektaCashier;
+<?php
 
+namespace Dinkbit\ConektaCashier;
+
+use Config;
+use Exception;
+use Conekta_Event;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class WebhookController extends Controller {
-
+class WebhookController extends Controller
+{
 	/**
 	 * Handle a Conekta webhook call.
 	 *
@@ -16,14 +22,33 @@ class WebhookController extends Controller {
 	{
 		$payload = $this->getJsonPayload();
 
-		switch ($payload['type'])
-		{
-			case 'subscription.canceled':
-				return $this->handleFailedPayment($payload);
-		}
+		if (! $this->eventExistsOnConekta($payload['id'])) {
+            return;
+        }
 
-		return new Response('No action taken', 200);
+		$method = 'handle'.studly_case(str_replace('.', '_', $payload['type']));
+
+        if (method_exists($this, $method)) {
+            return $this->{$method}($payload);
+        } else {
+            return $this->missingMethod();
+        }
 	}
+
+	/**
+     * Verify with Stripe that the event is genuine.
+     *
+     * @param  string  $id
+     * @return bool
+     */
+    protected function eventExistsOnConekta($id)
+    {
+        try {
+            return ! is_null(Conekta_Event::where($id));
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
 	/**
 	 * Handle a failed payment from a Conekta subscription.
@@ -31,12 +56,13 @@ class WebhookController extends Controller {
 	 * @param  array  $payload
 	 * @return \Symfony\Component\HttpFoundation\Response
 	 */
-	protected function handleFailedPayment(array $payload)
+	protected function handleSubscriptionPaymentFailed(array $payload)
 	{
-
 		$billable = $this->getBillable($payload['data']['object']['customer_id']);
 
-		if ($billable) $billable->subscription()->cancel();
+		if ($billable) {
+			$billable->subscription()->cancel();
+		}
 
 		return new Response('Webhook Handled', 200);
 	}
@@ -53,13 +79,23 @@ class WebhookController extends Controller {
 	}
 
 	/**
-	 * Get the JSON payload for the request.
-	 *
-	 * @return array
-	 */
-	protected function getJsonPayload()
-	{
-		return (array) json_decode(Request::getContent(), true);
-	}
+     * Get the JSON payload for the request.
+     *
+     * @return array
+     */
+    protected function getJsonPayload()
+    {
+        return (array) json_decode(Request::getContent(), true);
+    }
 
+	/**
+     * Handle calls to missing methods on the controller.
+     *
+     * @param  array   $parameters
+     * @return mixed
+     */
+    public function missingMethod($parameters = array())
+    {
+        return new Response;
+    }
 }

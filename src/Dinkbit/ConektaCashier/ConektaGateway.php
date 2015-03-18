@@ -1,11 +1,18 @@
-<?php namespace Dinkbit\ConektaCashier;
+<?php
+
+namespace Dinkbit\ConektaCashier;
 
 use Carbon\Carbon;
 use Conekta;
-use Conekta_Invoice, Conekta_Customer;
+use Conekta_Charge;
+use Conekta_Customer;
+use Conekta_Invoice;
+use Conekta_Error;
+use InvalidArgumentException;
+use Dinkbit\ConektaCashier\Contracts\Billable as BillableContract;
 
-class ConektaGateway {
-
+class ConektaGateway
+{
 	/**
 	 * The billable instance.
 	 *
@@ -58,37 +65,79 @@ class ConektaGateway {
 	/**
 	 * Create a new Conekta gateway instance.
 	 *
-	 * @param  \Dinkbit\ConektaCashier\BillableInterface   $billable
+	 * @param  \Dinkbit\ConektaCashier\Contracts\Billable   $billable
 	 * @param  string|null  $plan
 	 * @return void
 	 */
-	public function __construct(BillableInterface $billable, $plan = null)
+	public function __construct(BillableContract $billable, $plan = null)
 	{
-		Conekta::setApiKey($billable->getConektaKey());
 		$this->plan = $plan;
 		$this->billable = $billable;
+
+		Conekta::setApiKey($billable->getConektaKey());
 	}
 
 	/**
-	 * Subscribe to the plan for the first time.
-	 *
-	 * @param  string  $token
-	 * @param  string  $name
-	 * @param  string  $email
-	 * @param  object|null  $customer
-	 * @return void
-	 */
-	public function create($token, $name = '', $email = '', $customer = null)
-	{
+     * Make a "one off" charge on the customer for the given amount.
+     *
+     * @param  int  $amount
+     * @param  array  $options
+     * @return bool|mixed
+     */
+    public function charge($amount, array $options = array())
+    {
+        $options = array_merge([
+            'currency' => 'mxn',
+        ], $options);
 
-		if ( ! $customer)
-		{
-			$customer = $this->createConektaCustomer($token, $name, $email);
+        $options['amount'] = $amount;
+
+        if (! array_key_exists('source', $options) && $this->billable->hasStripeId()) {
+            $options['customer'] = $this->billable->getStripeId();
+        }
+
+        if (! array_key_exists('source', $options) && ! array_key_exists('customer', $options)) {
+            throw new InvalidArgumentException("No payment source provided.");
+        }
+
+        try {
+            $response = Conekta_Charge::create($options);
+        } catch (Conekta_Error $e) {
+            return false;
+        }
+
+        return $response;
+    }
+
+	/**
+     * Subscribe to the plan for the first time.
+     *
+     * @param  string  $token
+     * @param  array   $properties
+     * @param  object|null  $customer
+     * @return void
+     */
+	public function create($token, array $properties = array(), $customer = null)
+	{
+		$freshCustomer = false;
+
+		if ( ! $customer) {
+			$customer = $this->createConektaCustomer($token, $properties);
+
+			$freshCustomer = true;
+		} elseif (! is_null($token)) {
+			$this->updateCard($token);
 		}
 
 		$this->billable->setConektaSubscription(
 			$customer->updateSubscription($this->buildPayload())->id
 		);
+
+		$customer = $this->getConektaCustomer($customer->id);
+
+		if ($freshCustomer && $trialEnd = $this->getTrialEndForCustomer($customer)) {
+            $this->billable->setTrialEndDate($trialEnd);
+        }
 
 		$this->updateLocalConektaData($this->getConektaCustomer($customer->id));
 	}
@@ -123,22 +172,20 @@ class ConektaGateway {
 		// If no specific trial end date has been set, the default behavior should be
 		// to maintain the current trial state, whether that is "active" or to run
 		// the swap out with the exact number of days left on this current plan.
-		if (is_null($this->trialEnd))
-		{
+		if (is_null($this->trialEnd)) {
 			$this->maintainTrial();
 		}
 
 		// Again, if no explicit quantity was set, the default behaviors should be to
 		// maintain the current quantity onto the new plan. This is a sensible one
 		// that should be the expected behavior for most developers with Conekta.
-		if (isset($customer->subscription) && is_null($quantity))
-		{
+		if (isset($customer->subscription) && is_null($quantity)) {
 			$this->quantity(
 				$customer->subscription->quantity
 			);
 		}
 
-		return $this->create(null, null, $customer);
+		return $this->create(null, [], $customer);
 	}
 
 	/**
@@ -162,11 +209,9 @@ class ConektaGateway {
 	 */
 	public function resume($token = null)
 	{
-
-		$this->noProrate()->skipTrial()->create($token, null, null, $this->getConektaCustomer());
+		$this->noProrate()->skipTrial()->create($token, [], $this->getConektaCustomer());
 
 		$this->billable->setTrialEndDate(null)->saveBillableInstance();
-
 	}
 
 	/**
@@ -176,16 +221,13 @@ class ConektaGateway {
 	 */
 	public function invoice()
 	{
-		try
-		{
+		try {
 			$customer = $this->getConektaCustomer();
 
 			Conekta_Invoice::create(['customer' => $customer->id], $this->getConektaKey())->pay();
 
 			return true;
-		}
-		catch (\Conekta_InvalidRequestError $e)
-		{
+		} catch (\Conekta_InvalidRequestError $e) {
 			return false;
 		}
 	}
@@ -198,37 +240,32 @@ class ConektaGateway {
 	 */
 	public function findInvoice($id)
 	{
-		try
-		{
+		try {
 			return new Invoice($this->billable, Conekta_Invoice::retrieve($id, $this->getConektaKey()));
-		}
-		catch (\Exception $e)
-		{
+		} catch (\Exception $e) {
 			return null;
 		}
 	}
 
 	/**
-	 * Get an array of the entity's invoices.
-	 *
-	 * @param  bool  $includePending
-	 * @return array
-	 */
-	public function invoices($includePending = false)
+     * Get an array of the entity's invoices.
+     *
+     * @param  bool   $includePending
+     * @param  array  $parameters
+     * @return array
+     */
+    public function invoices($includePending = false, $parameters = array())
 	{
 		$invoices = [];
 
-		$conektaInvoices = $this->getConektaCustomer()->invoices();
+		$conektaInvoices = $this->getConektaCustomer()->invoices($parameters);
 
 		// Here we will loop through the Conekta invoices and create our own custom Invoice
 		// instances that have more helper methods and are generally more convenient to
 		// work with than the plain Conekta objects are. Then, we'll return the array.
-		if ( ! is_null($conektaInvoices))
-		{
-			foreach ($conektaInvoices->data as $invoice)
-			{
-				if ($invoice->paid || $includePending)
-				{
+		if ( ! is_null($conektaInvoices)) {
+			foreach ($conektaInvoices->data as $invoice) {
+				if ($invoice->paid || $includePending) {
 					$invoices[] = new Invoice($this->billable, $invoice);
 				}
 
@@ -247,6 +284,24 @@ class ConektaGateway {
 	{
 		return $this->invoices(true);
 	}
+
+	/**
+     * Get the entity's upcoming invoice.
+     *
+     * @return \Dinkbit\ConektaCashier\Invoice|null
+     */
+    public function upcomingInvoice()
+    {
+        try {
+			$customer = $this->getConektaCustomer();
+
+            $conektaInvoice = Conekta_Invoice::upcoming(['customer' => $customer->id]);
+
+            return new Invoice($this->billable, $conektaInvoice);
+        } catch (\Conekta_InvalidRequestError $e) {
+            return null;
+        }
+    }
 
 	/**
 	 * Increment the quantity of the subscription.
@@ -301,8 +356,7 @@ class ConektaGateway {
 			'quantity' => $quantity,
 		];
 
-		if ($trialEnd = $this->getTrialEndForUpdate())
-		{
+		if ($trialEnd = $this->getTrialEndForUpdate()) {
 			$subscription['trial_end'] = $trialEnd;
 		}
 
@@ -318,30 +372,21 @@ class ConektaGateway {
 	{
 		$customer = $this->getConektaCustomer();
 
-		if ($customer->subscription && $this->billable->conektaIsActive())
-		{
-			if ($atPeriodEnd)
-			{
+		if ($customer->subscription) {
+			if ($atPeriodEnd) {
 				$this->billable->setSubscriptionEndDate(
 					Carbon::createFromTimestamp($this->getSubscriptionEndTimestamp($customer))
 				);
-			}
-			else
-			{
+			} else {
 				$this->billable->setSubscriptionEndDate(Carbon::now());
 			}
 		}
 
-		if($this->billable->conektaIsActive()){
-			$customer->cancelSubscription(['at_period_end' => $atPeriodEnd]);
-		}
+		$customer->cancelSubscription(['at_period_end' => $atPeriodEnd]);
 
-		if ($atPeriodEnd)
-		{
+		if ($atPeriodEnd) {
 			$this->billable->setConektaIsActive(false)->saveBillableInstance();
-		}
-		else
-		{
+		} else {
 			$this->billable->deactivateConekta()->saveBillableInstance();
 		}
 
@@ -384,6 +429,18 @@ class ConektaGateway {
 			return $customer->subscription->billing_cycle_end;
 		// }
 	}
+
+	/**
+    * Get the current subscription period's end date
+    *
+    * @return \Carbon\Carbon
+    */
+    public function getSubscriptionEndDate()
+    {
+        $customer = $this->getConektaCustomer();
+
+        return Carbon::createFromTimestamp($this->getSubscriptionEndTimestamp($customer));
+    }
 
 	/**
 	 * Remove the credit card attached to the entity.
@@ -475,7 +532,11 @@ class ConektaGateway {
 	 */
 	public function planId()
 	{
-		return $this->getConektaCustomer()->subscription->plan->id;
+		$customer = $this->getConektaCustomer();
+
+		if (isset($customer->subscription)) {
+            return $customer->subscription->plan->id;
+        }
 	}
 
 	/**
@@ -502,17 +563,14 @@ class ConektaGateway {
 	 * Create a new Conekta customer instance.
 	 *
 	 * @param  string  $token
-	 * @param  string  $name
-	 * @param  string  $email
+	 * @param  array   $properties
 	 * @return \Conekta_Customer
 	 */
-	public function createConektaCustomer($token, $name, $email)
+	public function createConektaCustomer($token, array $properties = array())
 	{
-		$customer = Conekta_Customer::create([
-			'cards' => array($token),
-			'name' => $name,
-			'email' => $email
-		], $this->getConektaKey());
+		$customer = Conekta_Customer::create(
+            array_merge(['cards' => [$token]], $properties), $this->getConektaKey()
+        );
 
 		return $this->getConektaCustomer($customer->id);
 	}
@@ -606,6 +664,18 @@ class ConektaGateway {
 	}
 
 	/**
+     * Get the subscription quantity.
+     *
+     * @return int
+     */
+    public function getQuantity()
+    {
+		$customer = $this->getConektaCustomer();
+
+        return $customer->subscription->quantity;
+    }
+
+	/**
 	 * Set the quantity to apply to the subscription.
 	 *
 	 * @param  int  $quantity
@@ -660,7 +730,9 @@ class ConektaGateway {
 	 */
 	protected function getTrialEndForUpdate()
 	{
-		if ($this->skipTrial) return 'now';
+		if ($this->skipTrial) {
+			return 'now';
+		}
 
 		return $this->trialEnd ? $this->trialEnd->getTimestamp() : null;
 	}
@@ -672,14 +744,10 @@ class ConektaGateway {
 	 */
 	public function maintainTrial()
 	{
-		if ($this->billable->readyForBilling())
-		{
-			if ( ! is_null($trialEnd = $this->getTrialEndForCustomer($this->getConektaCustomer())))
-			{
+		if ($this->billable->readyForBilling()) {
+			if ( ! is_null($trialEnd = $this->getTrialEndForCustomer($this->getConektaCustomer()))) {
 				$this->calculateRemainingTrialDays($trialEnd);
-			}
-			else
-			{
+			} else {
 				$this->skipTrial();
 			}
 		}
@@ -695,8 +763,7 @@ class ConektaGateway {
 	 */
 	public function getTrialEndForCustomer($customer)
 	{
-		if (isset($customer->subscription) && $customer->subscription->status == 'in_trial' && isset($customer->subscription->billing_cycle_end))
-		{
+		if (isset($customer->subscription) && $customer->subscription->status == 'in_trial' && isset($customer->subscription->billing_cycle_end)) {
 			return Carbon::createFromTimestamp($customer->subscription->billing_cycle_end);
 		}
 	}
@@ -726,5 +793,15 @@ class ConektaGateway {
 	{
 		return $this->billable->getConektaKey();
 	}
+
+	/**
+     * Get the currency for the billable entity.
+     *
+     * @return string
+     */
+    protected function getCurrency()
+    {
+        return $this->billable->getCurrency();
+    }
 
 }

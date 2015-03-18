@@ -3,8 +3,8 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCashierColumns extends Migration {
-
+class AddCashierColumns extends Migration
+{
 	/**
 	 * Run the migrations.
 	 *
@@ -12,7 +12,7 @@ class AddCashierColumns extends Migration {
 	 */
 	public function up()
 	{
-		Schema::table('cashier_table', function(Blueprint $table)
+		Schema::table('conekta_cashier_table', function(Blueprint $table)
 		{
 			$table->tinyInteger('conekta_active')->default(0);
 			$table->string('conekta_id')->nullable();

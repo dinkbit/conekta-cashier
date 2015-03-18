@@ -1,24 +1,26 @@
-<?php namespace Dinkbit\ConektaCashier;
+<?php
+
+namespace Dinkbit\ConektaCashier;
 
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
-class CashierTableCommand extends Command {
-
+class CashierTableCommand extends Command
+{
 	/**
 	 * The console command name.
 	 *
 	 * @var string
 	 */
-	protected $name = 'cashier:table';
+	protected $name = 'conekta-cashier:table';
 
 	/**
 	 * The console command description.
 	 *
 	 * @var string
 	 */
-	protected $description = 'Create a migration for the Cashier database columns';
+	protected $description = 'Create a migration for the Conekta Cashier database columns';
 
 	/**
 	 * Execute the console command.
@@ -29,11 +31,11 @@ class CashierTableCommand extends Command {
 	{
 		$fullPath = $this->createBaseMigration();
 
-		file_put_contents($fullPath, $this->getMigrationStub());
+        file_put_contents($fullPath, $this->getMigrationStub());
 
-		$this->info('Migration created successfully!');
+        $this->info('Migration created successfully!');
 
-		$this->call('dump-autoload');
+        $this->laravel['composer']->dumpAutoloads();
 	}
 
 	/**
@@ -43,11 +45,11 @@ class CashierTableCommand extends Command {
 	 */
 	protected function createBaseMigration()
 	{
-		$name = 'add_cashier_columns';
+		$name = 'add_conekta_cashier_columns';
 
-		$path = $this->laravel['path'].'/database/migrations';
+        $path = $this->laravel['path.database'].'/migrations';
 
-		return $this->laravel['migration.creator']->create($name, $path);
+        return $this->laravel['migration.creator']->create($name, $path);
 	}
 
 	/**
@@ -59,7 +61,7 @@ class CashierTableCommand extends Command {
 	{
 		$stub = file_get_contents(__DIR__.'/stubs/migration.stub');
 
-		return str_replace('cashier_table', $this->argument('table'), $stub);
+		return str_replace('conekta_cashier_table', $this->argument('table'), $stub);
 	}
 
 	/**

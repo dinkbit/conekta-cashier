@@ -5,8 +5,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-trait BillableTrait {
-
+trait Billable
+{
 	/**
 	 * The Conekta API key.
 	 *
@@ -35,6 +35,18 @@ trait BillableTrait {
 	}
 
 	/**
+     * Make a "one off" charge on the customer for the given amount.
+     *
+     * @param  int  $amount
+     * @param  array  $options
+     * @return bool|mixed
+     */
+    public function charge($amount, array $options = array())
+    {
+        return (new ConektaGateway($this))->charge($amount, $options);
+    }
+
+	/**
 	 * Get a new billing gateway instance for the given plan.
 	 *
 	 * @param  \Dinkbit\ConektaCashier\PlanInterface|string|null  $plan
@@ -58,15 +70,19 @@ trait BillableTrait {
 	}
 
 	/**
-	 * Find an invoice by ID.
-	 *
-	 * @param  string  $id
-	 * @return \Dinkbit\ConektaCashier\Invoice|null
-	 */
-	public function findInvoice($id)
-	{
-		return $this->subscription()->findInvoice($id);
-	}
+     * Find an invoice by ID.
+     *
+     * @param  string  $id
+     * @return \Dinkbit\ConektaCashier\Invoice|null
+     */
+    public function findInvoice($id)
+    {
+        $invoice = $this->subscription()->findInvoice($id);
+
+        if ($invoice && $invoice->customer == $this->getStripeId()) {
+            return $invoice;
+        }
+    }
 
 	/**
 	 * Find an invoice or throw a 404 error.
@@ -76,15 +92,26 @@ trait BillableTrait {
 	 */
 	public function findInvoiceOrFail($id)
 	{
-		if (is_null($invoice = $this->findInvoice($id)))
-		{
-			throw new NotFoundHttpException;
-		}
-		else
-		{
-			return $invoice;
-		}
+		$invoice = $this->findInvoice($id);
+
+        if (is_null($invoice)) {
+            throw new NotFoundHttpException;
+        } else {
+            return $invoice;
+        }
 	}
+
+	/**
+     * Get an SplFileInfo instance for a given invoice.
+     *
+     * @param  string  $id
+     * @param  array  $data
+     * @return \SplFileInfo
+     */
+    public function invoiceFile($id, array $data)
+    {
+        return $this->findInvoiceOrFail($id)->file($data);
+    }
 
 	/**
 	 * Create an invoice download Response.
@@ -101,12 +128,34 @@ trait BillableTrait {
 	/**
 	 * Get an array of the entity's invoices.
 	 *
+	 * @param  array  $parameters
 	 * @return array
 	 */
-	public function invoices()
+	public function invoices($parameters = array())
 	{
-		return $this->conektaIsActive() ? $this->subscription()->invoices() : [];
+		return $this->conektaIsActive() ? $this->subscription()->invoices(false, $parameters) : [];
 	}
+
+	/**
+     * Get the entity's upcoming invoice.
+     *
+     * @return @return \Dinkbit\ConektaCashier\Invoice|null
+     */
+    public function upcomingInvoice()
+    {
+        return $this->subscription()->upcomingInvoice();
+    }
+
+    /**
+     * Update customer's credit card.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function updateCard($token)
+    {
+        return $this->subscription()->updateCard($token);
+    }
 
 	/**
 	 * Apply a coupon to the billable entity.
@@ -126,12 +175,9 @@ trait BillableTrait {
 	 */
 	public function onTrial()
 	{
-		if ( ! is_null($this->getTrialEndDate()))
-		{
+		if ( ! is_null($this->getTrialEndDate())) {
 			return Carbon::today()->lt($this->getTrialEndDate());
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
@@ -143,12 +189,9 @@ trait BillableTrait {
 	 */
 	public function onGracePeriod()
 	{
-		if ( ! is_null($endsAt = $this->getSubscriptionEndDate()))
-		{
+		if ( ! is_null($endsAt = $this->getSubscriptionEndDate())) {
 			return Carbon::today()->lt(Carbon::instance($endsAt));
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
@@ -160,12 +203,9 @@ trait BillableTrait {
 	 */
 	public function subscribed()
 	{
-		if ($this->requiresCardUpFront())
-		{
+		if ($this->requiresCardUpFront()) {
 			return $this->conektaIsActive() || $this->onGracePeriod();
-		}
-		else
-		{
+		} else {
 			return $this->conektaIsActive() || $this->onTrial() || $this->onGracePeriod();
 		}
 	}
@@ -220,7 +260,9 @@ trait BillableTrait {
 	 */
 	public function requiresCardUpFront()
 	{
-		if (isset($this->cardUpFront)) return $this->cardUpFront;
+		if (isset($this->cardUpFront)) {
+			return $this->cardUpFront;
+		}
 
 		return true;
 	}
@@ -450,6 +492,48 @@ trait BillableTrait {
 
 		return $this;
 	}
+
+	/**
+     * Get the Stripe supported currency used by the entity.
+     *
+     * @return string
+     */
+    public function getCurrency()
+    {
+        return 'mxn';
+    }
+
+    /**
+     * Get the locale for the currency used by the entity.
+     *
+     * @return string
+     */
+    public function getCurrencyLocale()
+    {
+        return 'es_MX';
+    }
+
+    /**
+     * Format the given currency for display, without the currency symbol.
+     *
+     * @param  int  $amount
+     * @return mixed
+     */
+    public function formatCurrency($amount)
+    {
+        return number_format($amount / 100, 2);
+    }
+
+    /**
+     * Add the currency symbol to a given amount.
+     *
+     * @param  string  $amount
+     * @return string
+     */
+    public function addCurrencySymbol($amount)
+    {
+        return '$'.$amount;
+    }
 
 	/**
 	 * Get the Conekta API key.

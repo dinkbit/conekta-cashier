@@ -1,16 +1,11 @@
-<?php namespace Dinkbit\ConektaCashier;
+<?php
+
+namespace Dinkbit\ConektaCashier;
 
 use Illuminate\Support\ServiceProvider;
 
-class CashierServiceProvider extends ServiceProvider {
-
-	/**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
-	protected $defer = false;
-
+class CashierServiceProvider extends ServiceProvider
+{
 	/**
 	 * Bootstrap the application events.
 	 *
@@ -18,7 +13,11 @@ class CashierServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		$this->package('dinkbit/conektacashier');
+		$this->loadViewsFrom(__DIR__.'/../../views', 'conekta-cashier');
+
+        $this->publishes([
+            __DIR__.'/../../views' => base_path('resources/views/vendor/conekta-cashier'),
+        ]);
 	}
 
 	/**
@@ -28,27 +27,14 @@ class CashierServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app->bindShared('Dinkbit\ConektaCashier\BillableRepositoryInterface', function()
-		{
-			return new EloquentBillableRepository;
-		});
+		$this->app->bindShared('Dinkbit\ConektaCashier\BillableRepositoryInterface', function () {
+            return new EloquentBillableRepository;
+        });
 
-		$this->app->bindShared('command.cashier.table', function($app)
-		{
-			return new CashierTableCommand;
-		});
+        $this->app->bindShared('command.conekta.cashier.table', function ($app) {
+            return new CashierTableCommand;
+        });
 
-		$this->commands('command.cashier.table');
+        $this->commands('command.conekta.cashier.table');
 	}
-
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return array();
-	}
-
 }

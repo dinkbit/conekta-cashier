@@ -1,7 +1,9 @@
-<?php namespace Dinkbit\ConektaCashier;
+<?php
 
-interface BillableRepositoryInterface {
+namespace Dinkbit\ConektaCashier;
 
+interface BillableRepositoryInterface
+{
 	/**
 	 * Find a BillableInterface implementation by Conekta ID.
 	 *
@@ -9,5 +11,4 @@ interface BillableRepositoryInterface {
 	 * @return \Dinkbit\ConektaCashier\BillableInterface
 	 */
 	public function find($conektaId);
-
 }

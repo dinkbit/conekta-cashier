@@ -1,12 +1,14 @@
-<?php namespace Dinkbit\ConektaCashier;
+<?php
+
+namespace Dinkbit\ConektaCashier;
 
 use Conekta_Customer;
 use Conekta_Subscription;
 
-class Customer extends Conekta_Customer {
-
+class Customer extends Conekta_Customer
+{
 	/**
-	 * The subscription being managed by Cashier.
+	 * The subscription being managed by Conekta Cashier.
 	 *
 	 * @var \Conekta_Subscription
 	 */
@@ -15,11 +17,9 @@ class Customer extends Conekta_Customer {
 	/**
 	 * {@inheritdoc}
 	 */
-
 	public static function retrieve($id, $apiKey = null)
 	{
-		$class = get_called_class();
-		return self::_scpFind($class, $id);
+		return self::_scpFind(get_called_class(), $id, $apiKey);
 	}
 
 	/**
@@ -44,12 +44,12 @@ class Customer extends Conekta_Customer {
 	}
 
 	/**
-	 * Create the current subscription with the given data.
-	 *
-	 * @param  $params
-	 * @return void
-	 */
-	public function _createSubscription($params = null)
+     * Create the current subscription with the given data.
+     *
+     * @param  array  $params
+     * @return void
+     */
+    protected function _createSubscription(array $params)
 	{
 		return $this->subscription = $this->createSubscription($params);
 	}
@@ -62,20 +62,17 @@ class Customer extends Conekta_Customer {
 	 */
 	public function updateSubscription($params = null)
 	{
-		if (is_null($this->subscription))
-		{
+		if (is_null($this->subscription)) {
 			return $this->_createSubscription($params);
-		}
-		else
-		{
+		} else {
 			$billable = $this->getBillable($this->id);
 
-			if($billable){
-				if($billable->onTrial()){
+			if ($billable) {
+				if ($billable->onTrial()) {
 					$this->subscription->resume();
 				}
 
-				if($billable->expired() || $billable->cancelled()){
+				if ($billable->expired() || $billable->cancelled()) {
 					return $this->_createSubscription($params);
 				}
 			}

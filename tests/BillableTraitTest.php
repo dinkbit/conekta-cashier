@@ -60,7 +60,7 @@ class BillableTraitTest extends PHPUnit_Framework_TestCase {
 	}
 
 
-	public function testSubscribedChecksConektaIsActiveIfCardRequiredUpFront()
+	public function testSubscribedChecksStripeIsActiveIfCardRequiredUpFront()
 	{
 		$billable = new BillableTraitCardUpFrontTestStub;
 		$billable->conekta_active = true;
@@ -122,7 +122,7 @@ class BillableTraitTest extends PHPUnit_Framework_TestCase {
 	}
 
 
-	public function testReadyForBillingChecksConektaReadiness()
+	public function testReadyForBillingChecksStripeReadiness()
 	{
 		$billable = new BillableTraitTestStub;
 		$billable->conekta_id = null;
@@ -134,7 +134,7 @@ class BillableTraitTest extends PHPUnit_Framework_TestCase {
 	}
 
 
-	public function testGettingConektaKey()
+	public function testGettingStripeKey()
 	{
 		Config::shouldReceive('get')->once()->with('services.conekta.secret')->andReturn('foo');
 		$this->assertEquals('foo', BillableTraitTestStub::getConektaKey());
@@ -142,14 +142,14 @@ class BillableTraitTest extends PHPUnit_Framework_TestCase {
 
 }
 
-class BillableTraitTestStub implements Dinkbit\ConektaCashier\BillableInterface {
-	use Dinkbit\ConektaCashier\BillableTrait;
+class BillableTraitTestStub implements Dinkbit\ConektaCashier\Contracts\Billable {
+	use Dinkbit\ConektaCashier\Billable;
 	public $cardUpFront = false;
 	public function save() {}
 }
 
-class BillableTraitCardUpFrontTestStub implements Dinkbit\ConektaCashier\BillableInterface {
-	use Dinkbit\ConektaCashier\BillableTrait;
+class BillableTraitCardUpFrontTestStub implements Dinkbit\ConektaCashier\Contracts\Billable {
+	use Dinkbit\ConektaCashier\Billable;
 	public $cardUpFront = true;
 	public function save() {}
 }

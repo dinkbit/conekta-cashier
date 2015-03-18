@@ -5,14 +5,10 @@ by [dinkbit](<http://dinkbit.com>)
 
 ___
 
-> **Warning**: Beta version.
->
-> Based on [Laravel Cashier](https://github.com/laravel/cashier)
+> Completely based on [Laravel Cashier](https://github.com/laravel/cashier)
 
 ##### Todo
 
-- [ ] Update and review tests
-- [ ] Change StripeGateway Test for ConektaGateway Test
 - [ ] Add Invoices support
 ___
 
@@ -36,7 +32,7 @@ dinkbit Conekta-Cashier provides an expressive, fluent interface to [Conekta's](
 
 First, add the Conekta-Cashier package to your `composer.json` file:
 
-	"dinkbit/conekta-cashier": "~0.8"
+	"dinkbit/conekta-cashier": "~2.0"
 
 #### Service Provider
 
