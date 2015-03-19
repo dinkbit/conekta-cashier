@@ -116,7 +116,7 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
         $gateway->shouldReceive('getConektaCustomer')->andReturn($customer = m::mock('StdClass'));
         $gateway->shouldReceive('getLastFourCardDigits')->once()->andReturn('1111');
         $gateway->shouldReceive('getCardType')->once()->andReturn('brand');
-        $customer->subscription = (object) ['plan' => (object) ['id' => 1]];
+        $customer->subscription = (object) ['plan' => (object) ['id'  => 1]];
         $customer->shouldReceive('createCard')->once()->with(['token' => 'token'])->andReturn($card = m::mock('StdClass'));
         $card->id = 'card_id';
         $customer->shouldReceive('update')->once()->with(['default_card' => 'card_id']);

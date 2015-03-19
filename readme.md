@@ -1,10 +1,11 @@
-# Laravel Conekta-Cashier
+# Laravel Conekta Cashier
+
+[![Build Status](https://img.shields.io/travis/dinkbit/conekta-cashier.svg?style=flat-square)](https://travis-ci.org/dinkbit/conekta-cashier)
+[![StyleCI](https://styleci.io/repos/22849643/shield)](https://styleci.io/repos/22849643)
 
 [![image](http://dinkbit.com/images/firmadinkbit.png)](<http://dinkbit.com>)
 
-___
-
-> Port of Stripe [Laravel Cashier](https://github.com/laravel/cashier) to Conekta
+Port of Stripe [Laravel Cashier](https://github.com/laravel/cashier) to Conekta
 
 ___
 

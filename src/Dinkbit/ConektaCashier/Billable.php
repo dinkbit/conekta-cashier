@@ -5,7 +5,6 @@ namespace Dinkbit\ConektaCashier;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Support\Facades\Config;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 trait Billable
 {
