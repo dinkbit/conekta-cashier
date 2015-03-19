@@ -28,40 +28,6 @@ interface Billable
     public function subscription($plan = null);
 
     /**
-     * Invoice the billable entity outside of regular billing cycle.
-     *
-     * @return void
-     */
-    public function invoice();
-
-    /**
-     * Find an invoice by ID.
-     *
-     * @param string $id
-     *
-     * @return \Dinkbit\ConektaCashier\Invoice|null
-     */
-    public function findInvoice($id);
-
-    /**
-     * Get an array of the entity's invoices.
-     *
-     * @param array $parameters
-     *
-     * @return array
-     */
-    public function invoices($parameters = []);
-
-    /**
-     * Apply a coupon to the billable entity.
-     *
-     * @param string $coupon
-     *
-     * @return void
-     */
-    public function applyCoupon($coupon);
-
-    /**
      * Determine if the entity is within their trial period.
      *
      * @return bool
@@ -173,6 +139,20 @@ interface Billable
      * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function setLastFourCardDigits($digits);
+
+    /**
+     * Get the brand of the entity's credit card.
+     *
+     * @return string
+     */
+    public function getCardType();
+
+    /**
+     * Set the brand of the entity's credit card.
+     *
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
+     */
+    public function setCardType($type);
 
     /**
      * Get the date on which the trial ends.

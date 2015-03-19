@@ -10,34 +10,6 @@ class BillableTraitTest extends PHPUnit_Framework_TestCase
         m::close();
     }
 
-    public function testFindInvoiceOrFailReturnsInvoice()
-    {
-        $billable = m::mock('BillableTraitTestStub[findInvoice]');
-        $billable->shouldReceive('findInvoice')->once()->with('id')->andReturn('foo');
-
-        $this->assertEquals('foo', $billable->findInvoiceOrFail('id'));
-    }
-
-    /**
-     * @expectedException Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     */
-    public function testFindInvoiceOrFailsThrowsExceptionWhenNotFound()
-    {
-        $billable = m::mock('BillableTraitTestStub[findInvoice]');
-        $billable->shouldReceive('findInvoice')->once()->with('id')->andReturn(null);
-
-        $billable->findInvoiceOrFail('id');
-    }
-
-    public function testDownloadCallsDownloadOnInvoice()
-    {
-        $billable = m::mock('BillableTraitTestStub[findInvoice]');
-        $billable->shouldReceive('findInvoice')->once()->with('id')->andReturn($invoice = m::mock('StdClass'));
-        $invoice->shouldReceive('download')->once()->with(['foo']);
-
-        $billable->downloadInvoice('id', ['foo']);
-    }
-
     public function testOnTrialMethodReturnsTrueIfTrialDateGreaterThanCurrentDate()
     {
         $billable = m::mock('BillableTraitTestStub[getTrialEndDate]');

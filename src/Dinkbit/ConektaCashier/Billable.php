@@ -64,98 +64,6 @@ trait Billable
     }
 
     /**
-     * Invoice the billable entity outside of regular billing cycle.
-     *
-     * @return bool
-     */
-    public function invoice()
-    {
-        return $this->subscription()->invoice();
-    }
-
-    /**
-     * Find an invoice by ID.
-     *
-     * @param string $id
-     *
-     * @return \Dinkbit\ConektaCashier\Invoice|null
-     */
-    public function findInvoice($id)
-    {
-        $invoice = $this->subscription()->findInvoice($id);
-
-        if ($invoice && $invoice->customer == $this->getStripeId()) {
-            return $invoice;
-        }
-    }
-
-    /**
-     * Find an invoice or throw a 404 error.
-     *
-     * @param string $id
-     *
-     * @return \Dinkbit\ConektaCashier\Invoice
-     */
-    public function findInvoiceOrFail($id)
-    {
-        $invoice = $this->findInvoice($id);
-
-        if (is_null($invoice)) {
-            throw new NotFoundHttpException();
-        } else {
-            return $invoice;
-        }
-    }
-
-    /**
-     * Get an SplFileInfo instance for a given invoice.
-     *
-     * @param string $id
-     * @param array  $data
-     *
-     * @return \SplFileInfo
-     */
-    public function invoiceFile($id, array $data)
-    {
-        return $this->findInvoiceOrFail($id)->file($data);
-    }
-
-    /**
-     * Create an invoice download Response.
-     *
-     * @param string $id
-     * @param array  $data
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function downloadInvoice($id, array $data)
-    {
-        return $this->findInvoiceOrFail($id)->download($data);
-    }
-
-    /**
-     * Get an array of the entity's invoices.
-     *
-     * @param array $parameters
-     *
-     * @return array
-     */
-    public function invoices($parameters = [])
-    {
-        return $this->conektaIsActive() ? $this->subscription()->invoices(false, $parameters) : [];
-    }
-
-    /**
-     * Get the entity's upcoming invoice.
-     *
-     * @return @return \Dinkbit\ConektaCashier\Invoice|null
-     */
-    public function upcomingInvoice()
-    {
-        return $this->subscription()->upcomingInvoice();
-    }
-
-    /**
      * Update customer's credit card.
      *
      * @param string $token
@@ -165,18 +73,6 @@ trait Billable
     public function updateCard($token)
     {
         return $this->subscription()->updateCard($token);
-    }
-
-    /**
-     * Apply a coupon to the billable entity.
-     *
-     * @param string $coupon
-     *
-     * @return void
-     */
-    public function applyCoupon($coupon)
-    {
-        return $this->subscription()->applyCoupon($coupon);
     }
 
     /**
@@ -306,7 +202,7 @@ trait Billable
      *
      * @param bool $active
      *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function setConektaIsActive($active = true)
     {
@@ -318,7 +214,7 @@ trait Billable
     /**
      * Set Conekta as inactive on the entity.
      *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function deactivateConekta()
     {
@@ -364,7 +260,7 @@ trait Billable
      *
      * @param string $conekta_id
      *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function setConektaId($conekta_id)
     {
@@ -388,7 +284,7 @@ trait Billable
      *
      * @param string $subscription_id
      *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function setConektaSubscription($subscription_id)
     {
@@ -412,7 +308,7 @@ trait Billable
      *
      * @param string $plan
      *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function setConektaPlan($plan)
     {
@@ -434,7 +330,7 @@ trait Billable
     /**
      * Set the last four digits of the entity's credit card.
      *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function setLastFourCardDigits($digits)
     {
@@ -456,7 +352,7 @@ trait Billable
     /**
      * Set the brand of the entity's credit card.
      *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function setCardType($type)
     {
@@ -480,7 +376,7 @@ trait Billable
      *
      * @param \DateTime|null $date
      *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function setTrialEndDate($date)
     {
@@ -504,7 +400,7 @@ trait Billable
      *
      * @param \DateTime|null $date
      *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
      */
     public function setSubscriptionEndDate($date)
     {

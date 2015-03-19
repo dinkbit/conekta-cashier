@@ -28,27 +28,6 @@ class ConektaGateway
     protected $plan;
 
     /**
-     * The coupon to apply to the subscription.
-     *
-     * @var string
-     */
-    protected $coupon;
-
-    /**
-     * Indicates if the plan change should be prorated.
-     *
-     * @var bool
-     */
-    protected $prorate = true;
-
-    /**
-     * Indicates the "quantity" of the plan.
-     *
-     * @var int
-     */
-    protected $quantity = 1;
-
-    /**
      * The trial end date that should be used when updating.
      *
      * @var \Carbon\Carbon
@@ -142,7 +121,7 @@ class ConektaGateway
             $this->billable->setTrialEndDate($trialEnd);
         }
 
-        $this->updateLocalConektaData($this->getConektaCustomer($customer->id));
+        $this->updateLocalConektaData($customer);
     }
 
     /**
@@ -152,14 +131,7 @@ class ConektaGateway
      */
     protected function buildPayload()
     {
-        $payload = [
-            'plan'     => $this->plan, 'prorate' => $this->prorate,
-            'quantity' => $this->quantity, 'trial_end' => $this->getTrialEndForUpdate(),
-        ];
-
-        if ($this->coupon) {
-            $payload['coupon'] = $this->coupon;
-        }
+        $payload = ['plan' => $this->plan];
 
         return $payload;
     }
@@ -167,45 +139,13 @@ class ConektaGateway
     /**
      * Swap the billable entity to a new plan.
      *
-     * @param int|null $quantity
-     *
      * @return void
      */
-    public function swap($quantity = null)
+    public function swap()
     {
         $customer = $this->getConektaCustomer();
 
-        // If no specific trial end date has been set, the default behavior should be
-        // to maintain the current trial state, whether that is "active" or to run
-        // the swap out with the exact number of days left on this current plan.
-        if (is_null($this->trialEnd)) {
-            $this->maintainTrial();
-        }
-
-        // Again, if no explicit quantity was set, the default behaviors should be to
-        // maintain the current quantity onto the new plan. This is a sensible one
-        // that should be the expected behavior for most developers with Conekta.
-        if (isset($customer->subscription) && is_null($quantity)) {
-            $this->quantity(
-                $customer->subscription->quantity
-            );
-        }
-
         return $this->create(null, [], $customer);
-    }
-
-    /**
-     * Swap the billable entity to a new plan and invoice immediately.
-     *
-     * @param int|null $quantity
-     *
-     * @return void
-     */
-    public function swapAndInvoice($quantity = null)
-    {
-        $this->swap($quantity);
-
-        $this->invoice();
     }
 
     /**
@@ -217,163 +157,9 @@ class ConektaGateway
      */
     public function resume($token = null)
     {
-        $this->noProrate()->skipTrial()->create($token, [], $this->getConektaCustomer());
+        $this->create($token, [], $this->getConektaCustomer());
 
         $this->billable->setTrialEndDate(null)->saveBillableInstance();
-    }
-
-    /**
-     * Invoice the billable entity outside of regular billing cycle.
-     *
-     * @return bool
-     */
-    public function invoice()
-    {
-        try {
-            $customer = $this->getConektaCustomer();
-
-            Conekta_Invoice::create(['customer' => $customer->id], $this->getConektaKey())->pay();
-
-            return true;
-        } catch (\Conekta_InvalidRequestError $e) {
-            return false;
-        }
-    }
-
-    /**
-     * Find an invoice by ID.
-     *
-     * @param string $id
-     *
-     * @return \Dinkbit\ConektaCashier\Invoice|null
-     */
-    public function findInvoice($id)
-    {
-        try {
-            return new Invoice($this->billable, Conekta_Invoice::retrieve($id, $this->getConektaKey()));
-        } catch (\Exception $e) {
-            return;
-        }
-    }
-
-    /**
-     * Get an array of the entity's invoices.
-     *
-     * @param bool  $includePending
-     * @param array $parameters
-     *
-     * @return array
-     */
-    public function invoices($includePending = false, $parameters = [])
-    {
-        $invoices = [];
-
-        $conektaInvoices = $this->getConektaCustomer()->invoices($parameters);
-
-        // Here we will loop through the Conekta invoices and create our own custom Invoice
-        // instances that have more helper methods and are generally more convenient to
-        // work with than the plain Conekta objects are. Then, we'll return the array.
-        if (! is_null($conektaInvoices)) {
-            foreach ($conektaInvoices->data as $invoice) {
-                if ($invoice->paid || $includePending) {
-                    $invoices[] = new Invoice($this->billable, $invoice);
-                }
-            }
-        }
-
-        return $invoices;
-    }
-
-    /**
-     * Get all invoices, including pending.
-     *
-     * @return array
-     */
-    public function allInvoices()
-    {
-        return $this->invoices(true);
-    }
-
-    /**
-     * Get the entity's upcoming invoice.
-     *
-     * @return \Dinkbit\ConektaCashier\Invoice|null
-     */
-    public function upcomingInvoice()
-    {
-        try {
-            $customer = $this->getConektaCustomer();
-
-            $conektaInvoice = Conekta_Invoice::upcoming(['customer' => $customer->id]);
-
-            return new Invoice($this->billable, $conektaInvoice);
-        } catch (\Conekta_InvalidRequestError $e) {
-            return;
-        }
-    }
-
-    /**
-     * Increment the quantity of the subscription.
-     *
-     * @param int $count
-     *
-     * @return void
-     */
-    public function increment($count = 1)
-    {
-        $customer = $this->getConektaCustomer();
-
-        $this->updateQuantity($customer, $customer->subscription->quantity + $count);
-    }
-
-    /**
-     *  Increment the quantity of the subscription. and invoice immediately.
-     *
-     * @param int|null $quantity
-     *
-     * @return void
-     */
-    public function incrementAndInvoice($quantity = null)
-    {
-        $this->increment($quantity);
-
-        $this->invoice();
-    }
-
-    /**
-     * Decrement the quantity of the subscription.
-     *
-     * @param int $count
-     *
-     * @return void
-     */
-    public function decrement($count = 1)
-    {
-        $customer = $this->getConektaCustomer();
-
-        $this->updateQuantity($customer, $customer->subscription->quantity - $count);
-    }
-
-    /**
-     * Update the quantity of the subscription.
-     *
-     * @param \Conekta_Customer $customer
-     * @param int               $quantity
-     *
-     * @return void
-     */
-    public function updateQuantity($customer, $quantity)
-    {
-        $subscription = [
-            'plan'     => $customer->subscription->plan->id,
-            'quantity' => $quantity,
-        ];
-
-        if ($trialEnd = $this->getTrialEndForUpdate()) {
-            $subscription['trial_end'] = $trialEnd;
-        }
-
-        $customer->updateSubscription($subscription);
     }
 
     /**
@@ -433,14 +219,7 @@ class ConektaGateway
      */
     protected function getSubscriptionEndTimestamp($customer)
     {
-        // if ( ! is_null($customer->subscription->billing_cycle_end) && $customer->subscription->billing_cycle_end > time())
-        // {
-        // 	return $customer->subscription->billing_cycle_end;
-        // }
-        // else
-        // {
-            return $customer->subscription->billing_cycle_end;
-        // }
+        return $customer->subscription->billing_cycle_end;
     }
 
     /**
@@ -456,46 +235,6 @@ class ConektaGateway
     }
 
     /**
-     * Remove the credit card attached to the entity.
-     *
-     * @param string $token
-     *
-     * @return void
-     */
-    public function removeCard()
-    {
-        $customer = $this->getConektaCustomer();
-
-        $plan = $customer->subscription->plan_id;
-
-        if (!empty($customer->cards[0])) {
-            $customer->cards[0]->delete();
-        }
-
-        $this->updateLocalConektaData($this->getConektaCustomer(), $plan);
-    }
-
-    /**
-     * Add a credit card to the entity.
-     *
-     * @param string $token
-     *
-     * @return void
-     */
-    public function addCard($token)
-    {
-        $customer = $this->getConektaCustomer();
-
-        $plan = $customer->subscription->plan_id;
-
-        $customer->createCard([
-            'token' => $token,
-        ]);
-
-        $this->updateLocalConektaData($this->getConektaCustomer(), $plan);
-    }
-
-    /**
      * Update the credit card attached to the entity.
      *
      * @param string $token
@@ -506,38 +245,14 @@ class ConektaGateway
     {
         $customer = $this->getConektaCustomer();
 
-        $plan = $customer->subscription->plan_id;
+        $card = $customer->createCard(['token' => $token]);
 
-        if (empty($customer->cards[0])) {
-            $customer->createCard([
-                'token' => $token,
-            ]);
-        } else {
-            $customer->cards[0]->update([
-                'token' => $token,
-            ]);
-        }
+        $customer->update(['default_card' => $card->id]);
 
         $this->billable
                 ->setLastFourCardDigits($this->getLastFourCardDigits($customer))
                 ->setCardType($this->getCardType($customer))
                 ->saveBillableInstance();
-    }
-
-    /**
-     * Apply a coupon to the billable entity.
-     *
-     * @param string $coupon
-     *
-     * @return void
-     */
-    public function applyCoupon($coupon)
-    {
-        $customer = $this->getConektaCustomer();
-
-        $customer->coupon = $coupon;
-
-        $customer->save();
     }
 
     /**
@@ -605,20 +320,6 @@ class ConektaGateway
     }
 
     /**
-     * Deteremine if the customer has a subscription.
-     *
-     * @param \Conekta_Customer $customer
-     *
-     * @return bool
-     */
-    protected function usingMultipleSubscriptionApi($customer)
-    {
-        return ! isset($customer->subscription) &&
-                 count($customer->subscriptions) > 0 &&
-                 ! is_null($this->billable->getConektaSubscription());
-    }
-
-    /**
      * Get the last four credit card digits for a customer.
      *
      * @param \Conekta_Customer $customer
@@ -648,70 +349,6 @@ class ConektaGateway
         }
 
         return $customer->cards[0]->brand;
-    }
-
-    /**
-     * The coupon to apply to a new subscription.
-     *
-     * @param string $coupon
-     *
-     * @return \Dinkbit\ConektaCashier\ConektaGateway
-     */
-    public function withCoupon($coupon)
-    {
-        $this->coupon = $coupon;
-
-        return $this;
-    }
-
-    /**
-     * Indicate that the plan change should be prorated.
-     *
-     * @return \Dinkbit\ConektaCashier\ConektaGateway
-     */
-    public function prorate()
-    {
-        $this->prorate = true;
-
-        return $this;
-    }
-
-    /**
-     * Indicate that the plan change should not be prorated.
-     *
-     * @return \Dinkbit\ConektaCashier\ConektaGateway
-     */
-    public function noProrate()
-    {
-        $this->prorate = false;
-
-        return $this;
-    }
-
-    /**
-     * Get the subscription quantity.
-     *
-     * @return int
-     */
-    public function getQuantity()
-    {
-        $customer = $this->getConektaCustomer();
-
-        return $customer->subscription->quantity;
-    }
-
-    /**
-     * Set the quantity to apply to the subscription.
-     *
-     * @param int $quantity
-     *
-     * @return \Dinkbit\ConektaCashier\ConektaGateway
-     */
-    public function quantity($quantity)
-    {
-        $this->quantity = $quantity;
-
-        return $this;
     }
 
     /**
@@ -762,24 +399,6 @@ class ConektaGateway
         }
 
         return $this->trialEnd ? $this->trialEnd->getTimestamp() : null;
-    }
-
-    /**
-     * Maintain the days left of the current trial (if applicable).
-     *
-     * @return \Dinkbit\ConektaCashier\ConektaGateway
-     */
-    public function maintainTrial()
-    {
-        if ($this->billable->readyForBilling()) {
-            if (! is_null($trialEnd = $this->getTrialEndForCustomer($this->getConektaCustomer()))) {
-                $this->calculateRemainingTrialDays($trialEnd);
-            } else {
-                $this->skipTrial();
-            }
-        }
-
-        return $this;
     }
 
     /**
