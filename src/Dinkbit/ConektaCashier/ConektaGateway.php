@@ -7,7 +7,6 @@ use Conekta;
 use Conekta_Charge;
 use Conekta_Customer;
 use Conekta_Error;
-use Conekta_Invoice;
 use Dinkbit\ConektaCashier\Contracts\Billable as BillableContract;
 use InvalidArgumentException;
 

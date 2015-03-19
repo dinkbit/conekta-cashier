@@ -13,11 +13,7 @@ class CashierServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadViewsFrom(__DIR__.'/../../views', 'conekta-cashier');
-
-        $this->publishes([
-            __DIR__.'/../../views' => base_path('resources/views/vendor/conekta-cashier'),
-        ]);
+        //
     }
 
     /**

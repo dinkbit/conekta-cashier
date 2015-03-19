@@ -1,4 +1,6 @@
-<?php namespace Dinkbit\ConektaCashier\Contracts;
+<?php
+
+namespace Dinkbit\ConektaCashier\Contracts;
 
 use DateTime;
 
