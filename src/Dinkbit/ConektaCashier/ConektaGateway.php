@@ -72,11 +72,11 @@ class ConektaGateway
 
         $options['amount'] = $amount;
 
-        if (! array_key_exists('source', $options) && $this->billable->hasStripeId()) {
-            $options['customer'] = $this->billable->getStripeId();
+        if (! array_key_exists('card', $options) && $this->billable->hasConektaId()) {
+            $options['card'] = $this->billable->getConektaId();
         }
 
-        if (! array_key_exists('source', $options) && ! array_key_exists('customer', $options)) {
+        if (! array_key_exists('card', $options)) {
             throw new InvalidArgumentException("No payment source provided.");
         }
 
