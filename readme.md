@@ -1,38 +1,39 @@
 # Laravel Conekta-Cashier
-by [dinkbit](<http://dinkbit.com>)
 
 [![image](http://dinkbit.com/images/firmadinkbit.png)](<http://dinkbit.com>)
 
 ___
 
-> Completely based on [Laravel Cashier](https://github.com/laravel/cashier)
+> Port of Stripe [Laravel Cashier](https://github.com/laravel/cashier) to Conekta
 
-##### Todo
-
-- [ ] Add Invoices support
 ___
 
+# Laravel Cashier
 
+- [Introduction](#introduction)
 - [Configuration](#configuration)
 - [Subscribing To A Plan](#subscribing-to-a-plan)
-- [No Card Up Front](#no-card-up-front)
+- [Single Charges](#single-charges)
+- [Swapping Subscriptions](#swapping-subscriptions)
 - [Cancelling A Subscription](#cancelling-a-subscription)
 - [Resuming A Subscription](#resuming-a-subscription)
 - [Checking Subscription Status](#checking-subscription-status)
 - [Handling Failed Payments](#handling-failed-payments)
+- [Handling Other Conekta Webhooks](#handling-other-conekta-webhooks)
+
+<a name="introduction"></a>
+## Introduction
+
+Laravel Cashier provides an expressive, fluent interface to [Conekta's](https://conekta.com) subscription billing services. It handles almost all of the boilerplate subscription billing code you are dreading writing. In addition to basic subscription management, Cashier can handle coupons, swapping subscription, subscription "quantities", cancellation grace periods, and even generate invoice PDFs.
 
 <a name="configuration"></a>
 ## Configuration
 
-> **Note:** Because of its use of traits, Conekta-Cashier requires PHP 5.4 or greater.
-
-dinkbit Conekta-Cashier provides an expressive, fluent interface to [Conekta's](https://conekta.io) subscription billing services.
-
 #### Composer
 
-First, add the Conekta-Cashier package to your `composer.json` file:
+First, add the Cashier package to your `composer.json` file:
 
-	"dinkbit/conekta-cashier": "~2.0"
+	"dinkbit/conekta-cashier": "~2.0" (For Conekta 1.0.0 PHP-SDK 2.0)
 
 #### Service Provider
 
@@ -40,199 +41,189 @@ Next, register the `Dinkbit\ConektaCashier\CashierServiceProvider` in your `app`
 
 #### Migration
 
-Before using Conekta-Cashier, we'll need to add several columns to your database. Don't worry, you can use the `cashier:table` Artisan command to create a migration to add the necessary column. Once the migration has been created, simply run the `migrate` command.
+Before using Cashier, we'll need to add several columns to your database. Don't worry, you can use the `cashier:table` Artisan command to create a migration to add the necessary column. For example, to add the column to the users table use `php artisan cashier:table users`. Once the migration has been created, simply run the `migrate` command.
 
 #### Model Setup
 
-Next, add the BillableTrait and appropriate date mutators to your model definition:
+Next, add the `Billable` trait and appropriate date mutators to your model definition:
 
-```php
-use Dinkbit\ConektaCashier\BillableTrait;
-use Dinkbit\ConektaCashier\BillableInterface;
+	use Dinkbit\ConektaCashier\Billable;
+	use Dinkbit\ConektaCashier\Contracts\Billable as BillableContract;
 
-class User extends Eloquent implements BillableInterface {
+	class User extends Eloquent implements BillableContract {
 
-	use BillableTrait;
+		use Billable;
 
-	protected $dates = ['trial_ends_at', 'subscription_ends_at'];
+		protected $dates = ['trial_ends_at', 'subscription_ends_at'];
 
-}
-```
-
-#### Create the Conekta config file
-
-Create the configuration file `app/config/conekta.php` and setup your keys and the Model on which you will use Cashier
-
-```php
-	return array(
-		'secret_key' => 'conekta-key',
-		'public_key' => 'public-conekta-key',
-		'model' => 'User'
-	);
-```
+	}
 
 #### Conekta Key
 
-Finally, set your Conekta key in one of your bootstrap files:
+Finally, set your Conekta key in your `services.php` config file:
 
-```php
-User::setConektaKey(Config::get('conekta.secret_key'));
-```
+	'conekta' => [
+		'model'  => 'User',
+		'secret' => env('CONEKTA_API_SECRET'),
+	],
 
-<a name="subscribing-to-a-plan"></a>
+Alternatively you can store it in one of your bootstrap files or service providers, such as the `AppServiceProvider`:
+
+	User::setConektaKey('conekta-key');
+
 ## Subscribing To A Plan
 
 Once you have a model instance, you can easily subscribe that user to a given Conekta plan:
 
-```php
-$user = User::find(1);
+	$user = User::find(1);
 
-$user->subscription('monthly')->create($creditCardToken);
-```
+	$user->subscription('monthly')->create($creditCardToken);
 
-If you would like to apply a coupon when creating the subscription, you may use the `withCoupon` method:
+The `subscription` method will automatically create the Conekta subscription, as well as update your database with Conekta customer ID and other relevant billing information. If your plan has a trial configured in Conekta, the trial end date will also automatically be set on the user record.
 
-```php
-$user->subscription('monthly')
-     ->create($creditCardToken);
-```
+If your plan has a trial period that is **not** configured in Conekta, you must set the trial end date manually after subscribing:
 
-The `subscription` method will automatically create the Conekta subscription, as well as update your database with Conekta customer ID and other relevant billing information. If your plan includes a trial, the trial end date will also automatically be set on the user record.
+	$user->trial_ends_at = Carbon::now()->addDays(14);
 
-If your plan has a trial period, make sure to set the trial end date on your model after subscribing:
+	$user->save();
 
-```php
-$user->trial_ends_at = Carbon::now()->addDays(14);
+### Specifying Additional User Details
 
-$user->save();
-```
+If you would like to specify additional customer details, you may do so by passing them as second argument to the `create` method:
 
-<a name="no-card-up-front"></a>
-## No Card Up Front
+	$user->subscription('monthly')->create($creditCardToken, [
+		'email' => $email, 'name' => 'Joe Doe'
+	]);
 
-If your application offers a free-trial with no credit-card up front, set the `cardUpFront` property on your model to `false`:
+To learn more about the additional fields supported by Conekta, check out Conekta's [documentation on customer creation](https://www.conekta.io/es/docs/api#crear-cliente).
 
-```php
-protected $cardUpFront = false;
-```
+## Single Charges
 
-On account creation, be sure to set the trial end date on the model:
+If you would like to make a "one off" charge against a subscribed customer's credit card, you may use the `charge` method:
 
-```php
-$user->trial_ends_at = Carbon::now()->addDays(14);
+	$user->charge(100);
 
-$user->save();
-```
+The `charge` method accepts the amount you would like to charge in the **lowest denominator of the currency**. So, for example, the example above will charge 100 cents, or $1.00, against the user's credit card.
 
+The `charge` method accepts an array as its second argument, allowing you to pass any options you wish to the underlying Conekta charge creation:
 
+	$user->charge(100, [
+		'card' => $token,
+	]);
 
-<a name="cancelling-a-subscription"></a>
+The `charge` method will return `false` if the charge fails. This typically indicates the charge was denied:
+
+	if ( ! $user->charge(100))
+	{
+		// The charge was denied...
+	}
+
+If the charge is successful, the full Conekta response will be returned from the method.
+
+## Swapping Subscriptions
+
+To swap a user to a new subscription, use the `swap` method:
+
+	$user->subscription('premium')->swap();
+
+If the user is on trial, the trial will be maintained as normal. Also, if a "quantity" exists for the subscription, that quantity will also be maintained.
+
 ## Cancelling A Subscription
 
 Cancelling a subscription is a walk in the park:
 
-```php
-$user->subscription()->cancel();
-```
+	$user->subscription()->cancel();
 
-When a subscription is cancelled, Conekta-Cashier will automatically set the `subscription_ends_at` column on your database. This column is used to know when the `subscribed` method should begin returning `false`. For example, if a customer cancels a subscription on March 1st, but the subscription was not scheduled to end until March 5th, the `subscribed` method will continue to return `true` until March 5th.
+When a subscription is cancelled, Cashier will automatically set the `subscription_ends_at` column on your database. This column is used to know when the `subscribed` method should begin returning `false`. For example, if a customer cancels a subscription on March 1st, but the subscription was not scheduled to end until March 5th, the `subscribed` method will continue to return `true` until March 5th.
 
-<a name="resuming-a-subscription"></a>
 ## Resuming A Subscription
 
 If a user has cancelled their subscription and you wish to resume it, use the `resume` method:
 
-```php
-$user->subscription('monthly')->resume($creditCardToken);
-```
+	$user->subscription('monthly')->resume($creditCardToken);
 
 If the user cancels a subscription and then resumes that subscription before the subscription has fully expired, they will not be billed immediately. Their subscription will simply be re-activated, and they will be billed on the original billing cycle.
 
-<a name="checking-subscription-status"></a>
 ## Checking Subscription Status
 
 To verify that a user is subscribed to your application, use the `subscribed` command:
 
-```php
-if ($user->subscribed())
-{
-	//
-}
-```
-
-The `subscribed` method makes a great candidate for a route filter:
-
-```php
-Route::filter('subscribed', function()
-{
-	if (Auth::user() && ! Auth::user()->subscribed())
+	if ($user->subscribed())
 	{
-		return Redirect::to('billing');
+		//
 	}
-});
-```
+
+The `subscribed` method makes a great candidate for a [route middleware](/docs/5.0/middleware):
+
+	public function handle($request, Closure $next)
+	{
+		if ($request->user() && ! $request->user()->subscribed())
+		{
+			return redirect('billing');
+		}
+
+		return $next($request);
+	}
 
 You may also determine if the user is still within their trial period (if applicable) using the `onTrial` method:
 
-```php
-if ($user->onTrial())
-{
-	//
-}
-```
+	if ($user->onTrial())
+	{
+		//
+	}
 
 To determine if the user was once an active subscriber, but has cancelled their subscription, you may use the `cancelled` method:
 
-```php
-if ($user->cancelled())
-{
-	//
-}
-```
+	if ($user->cancelled())
+	{
+		//
+	}
 
 You may also determine if a user has cancelled their subscription, but are still on their "grace period" until the subscription fully expires. For example, if a user cancels a subscription on March 5th that was scheduled to end on March 10th, the user is on their "grace period" until March 10th. Note that the `subscribed` method still returns `true` during this time.
 
-```php
-if ($user->onGracePeriod())
-{
-	//
-}
-```
+	if ($user->onGracePeriod())
+	{
+		//
+	}
 
 The `everSubscribed` method may be used to determine if the user has ever subscribed to a plan in your application:
 
-```php
-if ($user->everSubscribed())
-{
-	//
-}
-```
+	if ($user->everSubscribed())
+	{
+		//
+	}
 
-<a name="handling-failed-payments"></a>
+The `onPlan` method may be used to determine if the user is subscribed to a given plan based on its ID:
+
+	if ($user->onPlan('monthly'))
+	{
+		//
+	}
+
 ## Handling Failed Payments
 
-What if a customer's credit card expires? No worries - Conekta-Cashier includes a Webhook controller that can easily cancel the customer's subscription for you. Just point a route to the controller:
+What if a customer's credit card expires? No worries - Cashier includes a Webhook controller that can easily cancel the customer's subscription for you. Just point a route to the controller:
 
-```php
-Route::post('conekta/webhook', 'Dinkbit\ConektaCashier\WebhookController@handleWebhook');
-```
+	Route::post('conekta/webhook', 'Dinkbit\ConektaCashier\WebhookController@handleWebhook');
 
 That's it! Failed payments will be captured and handled by the controller. The controller will cancel the customer's subscription after three failed payment attempts. The `conekta/webhook` URI in this example is just for example. You will need to configure the URI in your Conekta settings.
 
-If you have additional Conekta webhook events you would like to handle, simply extend the Webhook controller:
+<a name="handling-other-conekta-webhooks"></a>
+## Handling Other Conekta Webhooks
 
-```php
-class WebhookController extends Dinkbit\ConektaCashier\WebhookController {
+If you have additional Conekta webhook events you would like to handle, simply extend the Webhook controller. Your method names should correspond to Cashier's expected convention, specifically, methods should be prefixed with `handle` and the name of the Conekta webhook you wish to handle. For example, if you wish to handle the `invoice.payment_succeeded` webhook, you should add a `handleInvoicePaymentSucceeded` method to the controller.
 
-	public function handleWebhook()
-	{
-		// Handle other events...
+	class WebhookController extends Dinkbit\ConektaCashier\WebhookController {
 
-		// Fallback to failed payment check...
-		return parent::handleWebhook();
+		public function handleInvoicePaymentSucceeded($payload)
+		{
+			// Handle The Event
+		}
+
 	}
 
-}
-```
-
 > **Note:** In addition to updating the subscription information in your database, the Webhook controller will also cancel the subscription via the Conekta API.
+
+### Todo
+
+- [ ] Add Invoices support when Conekta has them.
