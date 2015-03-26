@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddCashierColumns extends Migration
+class AddConektaCashierColumns extends Migration
 {
 	/**
 	 * Run the migrations.
