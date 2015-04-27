@@ -1,9 +1,11 @@
-<?php namespace Dinkbit\ConektaCashier;
+<?php
+
+namespace Dinkbit\ConektaCashier;
 
 use Carbon\Carbon;
 use Conekta;
-use Conekta_Invoice;
 use Conekta_Customer;
+use Conekta_Invoice;
 
 class ConektaGateway
 {
@@ -79,7 +81,7 @@ class ConektaGateway
      */
     public function create($token, $name = '', $email = '', $customer = null)
     {
-        if (! $customer) {
+        if (!$customer) {
             $customer = $this->createConektaCustomer($token, $name, $email);
         }
 
@@ -98,7 +100,7 @@ class ConektaGateway
     protected function buildPayload()
     {
         $payload = [
-            'plan' => $this->plan, 'prorate' => $this->prorate,
+            'plan'     => $this->plan, 'prorate' => $this->prorate,
             'quantity' => $this->quantity, 'trial_end' => $this->getTrialEndForUpdate(),
         ];
 
@@ -211,7 +213,7 @@ class ConektaGateway
         // Here we will loop through the Conekta invoices and create our own custom Invoice
         // instances that have more helper methods and are generally more convenient to
         // work with than the plain Conekta objects are. Then, we'll return the array.
-        if (! is_null($conektaInvoices)) {
+        if (!is_null($conektaInvoices)) {
             foreach ($conektaInvoices->data as $invoice) {
                 if ($invoice->paid || $includePending) {
                     $invoices[] = new Invoice($this->billable, $invoice);
@@ -277,7 +279,7 @@ class ConektaGateway
     public function updateQuantity($customer, $quantity)
     {
         $subscription = [
-            'plan' => $customer->subscription->plan->id,
+            'plan'     => $customer->subscription->plan->id,
             'quantity' => $quantity,
         ];
 
@@ -341,7 +343,7 @@ class ConektaGateway
      */
     protected function getSubscriptionEndTimestamp($customer)
     {
-        if (! is_null($customer->subscription->trial_end) && $customer->subscription->trial_end > time()) {
+        if (!is_null($customer->subscription->trial_end) && $customer->subscription->trial_end > time()) {
             return $customer->subscription->trial_end;
         } else {
             return $customer->subscription->billing_cycle_end;
@@ -466,8 +468,8 @@ class ConektaGateway
     public function createConektaCustomer($token, $name, $email)
     {
         $customer = Conekta_Customer::create([
-            'cards' => array($token),
-            'name' => $name,
+            'cards' => [$token],
+            'name'  => $name,
             'email' => $email,
         ], $this->getConektaKey());
 
@@ -495,9 +497,9 @@ class ConektaGateway
      */
     protected function usingMultipleSubscriptionApi($customer)
     {
-        return ! isset($customer->subscription) &&
+        return !isset($customer->subscription) &&
                  count($customer->subscriptions) > 0 &&
-                 ! is_null($this->billable->getConektaSubscription());
+                 !is_null($this->billable->getConektaSubscription());
     }
 
     /**
@@ -642,7 +644,7 @@ class ConektaGateway
     public function maintainTrial()
     {
         if ($this->billable->readyForBilling()) {
-            if (! is_null($trialEnd = $this->getTrialEndForCustomer($this->getConektaCustomer()))) {
+            if (!is_null($trialEnd = $this->getTrialEndForCustomer($this->getConektaCustomer()))) {
                 $this->calculateRemainingTrialDays($trialEnd);
             } else {
                 $this->skipTrial();
