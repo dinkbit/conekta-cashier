@@ -212,7 +212,7 @@ class ConektaGateway
     /**
      * Get the subscription end timestamp for the customer.
      *
-     * @param object $customer
+     * @param \Conekta_Customer $customer
      *
      * @return int
      */
