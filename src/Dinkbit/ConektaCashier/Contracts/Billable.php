@@ -164,6 +164,15 @@ interface Billable
     public function getTrialEndDate();
 
     /**
+     * Set the date on which the trial ends.
+     *
+     * @param \DateTime|null $date
+     *
+     * @return \Dinkbit\ConektaCashier\Contracts\Billable
+     */
+    public function setTrialEndDate($date);
+
+    /**
      * Get the subscription end date for the entity.
      *
      * @return \DateTime
@@ -210,4 +219,18 @@ interface Billable
      * @return string
      */
     public function addCurrencySymbol($amount);
+
+    /**
+     * Get the Conekta API key.
+     *
+     * @return string
+     */
+    public static function getConektaKey();
+
+    /**
+     * Deteremine if the entity has a Conekta customer ID.
+     *
+     * @return bool
+     */
+    public function hasConektaId();
 }

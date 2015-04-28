@@ -15,7 +15,7 @@ class ConektaGateway
     /**
      * The billable instance.
      *
-     * @var \Dinkbit\ConektaCashier\BillableInterface
+     * @var \Dinkbit\ConektaCashier\Contracts\Billable
      */
     protected $billable;
 
@@ -218,7 +218,11 @@ class ConektaGateway
      */
     protected function getSubscriptionEndTimestamp($customer)
     {
-        return $customer->subscription->billing_cycle_end;
+        if (! is_null($customer->subscription->trial_end) && $customer->subscription->trial_end > time()) {
+            return $customer->subscription->trial_end;
+        } else {
+            return $customer->subscription->billing_cycle_end;
+        }
     }
 
     /**
