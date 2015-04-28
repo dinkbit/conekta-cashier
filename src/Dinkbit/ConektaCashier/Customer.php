@@ -3,7 +3,6 @@
 namespace Dinkbit\ConektaCashier;
 
 use Conekta_Customer;
-use Conekta_Subscription;
 
 class Customer extends Conekta_Customer
 {

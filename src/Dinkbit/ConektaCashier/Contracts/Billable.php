@@ -2,8 +2,6 @@
 
 namespace Dinkbit\ConektaCashier\Contracts;
 
-use DateTime;
-
 interface Billable
 {
     /**

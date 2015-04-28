@@ -72,12 +72,12 @@ class ConektaGateway
 
         $options['amount'] = $amount;
 
-        if (! array_key_exists('card', $options) && $this->billable->hasConektaId()) {
+        if (!array_key_exists('card', $options) && $this->billable->hasConektaId()) {
             $options['card'] = $this->billable->getConektaId();
         }
 
-        if (! array_key_exists('card', $options)) {
-            throw new InvalidArgumentException("No payment source provided.");
+        if (!array_key_exists('card', $options)) {
+            throw new InvalidArgumentException('No payment source provided.');
         }
 
         try {
@@ -102,11 +102,11 @@ class ConektaGateway
     {
         $freshCustomer = false;
 
-        if (! $customer) {
+        if (!$customer) {
             $customer = $this->createConektaCustomer($token, $properties);
 
             $freshCustomer = true;
-        } elseif (! is_null($token)) {
+        } elseif (!is_null($token)) {
             $this->updateCard($token);
         }
 
@@ -218,7 +218,7 @@ class ConektaGateway
      */
     protected function getSubscriptionEndTimestamp($customer)
     {
-        if (! is_null($customer->subscription->trial_end) && $customer->subscription->trial_end > time()) {
+        if (!is_null($customer->subscription->trial_end) && $customer->subscription->trial_end > time()) {
             return $customer->subscription->trial_end;
         } else {
             return $customer->subscription->billing_cycle_end;

@@ -1,4 +1,6 @@
-<?php namespace Dinkbit\ConektaCashier;
+<?php
+
+namespace Dinkbit\ConektaCashier;
 
 interface PlanInterface
 {

@@ -32,8 +32,8 @@ class EloquentBillableRepository implements BillableRepositoryInterface
     {
         $model = new $class();
 
-        if (! $model instanceof BillableContract) {
-            throw new \InvalidArgumentException("Model does not implement Billable.");
+        if (!$model instanceof BillableContract) {
+            throw new \InvalidArgumentException('Model does not implement Billable.');
         }
 
         return $model;

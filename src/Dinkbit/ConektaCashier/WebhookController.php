@@ -20,7 +20,7 @@ class WebhookController extends Controller
     {
         $payload = $this->getJsonPayload();
 
-        if (! $this->eventExistsOnConekta($payload['id'])) {
+        if (!$this->eventExistsOnConekta($payload['id'])) {
             return;
         }
 
@@ -43,7 +43,7 @@ class WebhookController extends Controller
     protected function eventExistsOnConekta($id)
     {
         try {
-            return ! is_null(Conekta_Event::where($id));
+            return !is_null(Conekta_Event::where($id));
         } catch (Exception $e) {
             return false;
         }

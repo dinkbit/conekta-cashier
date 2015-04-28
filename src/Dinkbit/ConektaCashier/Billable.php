@@ -3,7 +3,6 @@
 namespace Dinkbit\ConektaCashier;
 
 use Carbon\Carbon;
-use DateTime;
 use Illuminate\Support\Facades\Config;
 
 trait Billable
@@ -83,7 +82,7 @@ trait Billable
      */
     public function onTrial()
     {
-        if (! is_null($this->getTrialEndDate())) {
+        if (!is_null($this->getTrialEndDate())) {
             return Carbon::today()->lt($this->getTrialEndDate());
         } else {
             return false;
@@ -97,7 +96,7 @@ trait Billable
      */
     public function onGracePeriod()
     {
-        if (! is_null($endsAt = $this->getSubscriptionEndDate())) {
+        if (!is_null($endsAt = $this->getSubscriptionEndDate())) {
             return Carbon::today()->lt(Carbon::instance($endsAt));
         } else {
             return false;
@@ -125,7 +124,7 @@ trait Billable
      */
     public function expired()
     {
-        return ! $this->subscribed();
+        return !$this->subscribed();
     }
 
     /**
@@ -135,7 +134,7 @@ trait Billable
      */
     public function cancelled()
     {
-        return $this->readyForBilling() && ! $this->conektaIsActive();
+        return $this->readyForBilling() && !$this->conektaIsActive();
     }
 
     /**
@@ -185,7 +184,7 @@ trait Billable
      */
     public function readyForBilling()
     {
-        return ! is_null($this->getConektaId());
+        return !is_null($this->getConektaId());
     }
 
     /**
@@ -233,7 +232,7 @@ trait Billable
      */
     public function hasConektaId()
     {
-        return ! is_null($this->conekta_id);
+        return !is_null($this->conekta_id);
     }
 
     /**
