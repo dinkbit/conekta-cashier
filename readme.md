@@ -7,6 +7,8 @@
 
 Port of Stripe [Laravel Cashier](https://github.com/laravel/cashier) to Conekta
 
+Please note the latest version of Laravel Cashier supports Laravel 5+, if you are looking for the Laravel 4 implementation see the [1.0](https://github.com/dinkbit/conekta-cashier/tree/1.0) branch.
+
 ___
 
 # Laravel Cashier
