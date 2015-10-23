@@ -408,7 +408,7 @@ class ConektaGateway
     public function maintainTrial()
     {
         if ($this->billable->readyForBilling()) {
-            if (! is_null($trialEnd = $this->getTrialEndForCustomer($this->getStripeCustomer()))) {
+            if (!is_null($trialEnd = $this->getTrialEndForCustomer($this->getStripeCustomer()))) {
                 $this->calculateRemainingTrialDays($trialEnd);
             } else {
                 $this->skipTrial();

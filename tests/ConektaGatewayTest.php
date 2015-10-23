@@ -36,7 +36,7 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
         $gateway->shouldReceive('createConektaCustomer')->andReturn($customer = m::mock('StdClass'));
         $customer->shouldReceive('updateSubscription')->once()->with([
             'plan'                   => 'plan',
-            'trial_end'              => Carbon::now()->timestamp
+            'trial_end'              => Carbon::now()->timestamp,
         ])->andReturn((object) ['id' => 'sub_id']);
         $customer->id = 'foo';
         $billable->shouldReceive('setConektaSubscription')->once()->with('sub_id');
