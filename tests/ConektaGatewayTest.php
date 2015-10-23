@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Dinkbit\ConektaCashier\ConektaGateway;
 use Mockery as m;
 
@@ -35,6 +36,7 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
         $gateway->shouldReceive('createConektaCustomer')->andReturn($customer = m::mock('StdClass'));
         $customer->shouldReceive('updateSubscription')->once()->with([
             'plan'                   => 'plan',
+            'trial_end'              => Carbon::now()->timestamp,
         ])->andReturn((object) ['id' => 'sub_id']);
         $customer->id = 'foo';
         $billable->shouldReceive('setConektaSubscription')->once()->with('sub_id');
@@ -65,8 +67,9 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
     public function testSwapCallsCreateWithProperArguments()
     {
         $billable = $this->mockBillableInterface();
-        $gateway = m::mock('Dinkbit\ConektaCashier\ConektaGateway[create,getConektaCustomer]', [$billable, 'plan']);
+        $gateway = m::mock('Dinkbit\ConektaCashier\ConektaGateway[create,getConektaCustomer,maintainTrial]', [$billable, 'plan']);
         $gateway->shouldReceive('getConektaCustomer')->once()->andReturn($customer = m::mock('StdClass'));
+        $gateway->shouldReceive('maintainTrial')->once();
         $gateway->shouldReceive('create')->once()->with(null, null, $customer);
 
         $gateway->swap();
@@ -148,7 +151,6 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
         $billable->shouldReceive('setCardType')->once()->with('brand-type')->andReturn($billable);
         $billable->shouldReceive('setConektaIsActive')->once()->with(true)->andReturn($billable);
         $billable->shouldReceive('setSubscriptionEndDate')->once()->with(null)->andReturn($billable);
-        $billable->shouldReceive('setTrialEndDate')->once()->with(null)->andReturn($billable);
         $billable->shouldReceive('saveBillableInstance')->once()->andReturn($billable);
         $customer = m::mock('StdClass');
         $customer->cards[0] = (object) ['last4' => 'last-four', 'brand' => 'brand-type'];
