@@ -108,6 +108,7 @@ class BillableTraitTestStub implements Dinkbit\ConektaCashier\Contracts\Billable
 {
     use Dinkbit\ConektaCashier\Billable;
     public $cardUpFront = false;
+
     public function save()
     {
     }
@@ -117,6 +118,7 @@ class BillableTraitCardUpFrontTestStub implements Dinkbit\ConektaCashier\Contrac
 {
     use Dinkbit\ConektaCashier\Billable;
     public $cardUpFront = true;
+
     public function save()
     {
     }
