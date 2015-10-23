@@ -151,7 +151,6 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
         $billable->shouldReceive('setCardType')->once()->with('brand-type')->andReturn($billable);
         $billable->shouldReceive('setConektaIsActive')->once()->with(true)->andReturn($billable);
         $billable->shouldReceive('setSubscriptionEndDate')->once()->with(null)->andReturn($billable);
-        $billable->shouldReceive('setTrialEndDate')->once()->with(null)->andReturn($billable);
         $billable->shouldReceive('saveBillableInstance')->once()->andReturn($billable);
         $customer = m::mock('StdClass');
         $customer->cards[0] = (object) ['last4' => 'last-four', 'brand' => 'brand-type'];
