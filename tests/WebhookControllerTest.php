@@ -34,6 +34,7 @@ class WebhookControllerTestStub extends Dinkbit\ConektaCashier\WebhookController
     {
         $_SERVER['__received'] = true;
     }
+
     /**
      * Verify with Conekta that the event is genuine.
      *
