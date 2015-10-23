@@ -132,6 +132,10 @@ class ConektaGateway
     {
         $payload = ['plan' => $this->plan];
 
+        if ($trialEnd = $this->getTrialEndForUpdate()) {
+            $payload['trial_end'] = $trialEnd;
+        }
+
         return $payload;
     }
 
@@ -143,6 +147,13 @@ class ConektaGateway
     public function swap()
     {
         $customer = $this->getConektaCustomer();
+
+        // If no specific trial end date has been set, the default behavior should be
+        // to maintain the current trial state, whether that is "active" or to run
+        // the swap out with the exact number of days left on this current plan.
+        if (is_null($this->trialEnd)) {
+            $this->maintainTrial();
+        }
 
         return $this->create(null, [], $customer);
     }
@@ -156,7 +167,7 @@ class ConektaGateway
      */
     public function resume($token = null)
     {
-        $this->create($token, [], $this->getConektaCustomer());
+        $this->skipTrial()->create($token, [], $this->getConektaCustomer());
 
         $this->billable->setTrialEndDate(null)->saveBillableInstance();
     }
@@ -288,7 +299,6 @@ class ConektaGateway
                 ->setLastFourCardDigits($this->getLastFourCardDigits($customer))
                 ->setCardType($this->getCardType($customer))
                 ->setConektaIsActive(true)
-                ->setTrialEndDate($this->getTrialEndForCustomer($customer))
                 ->setSubscriptionEndDate(null)
                 ->saveBillableInstance();
     }
@@ -391,6 +401,24 @@ class ConektaGateway
     }
 
     /**
+     * Maintain the days left of the current trial (if applicable).
+     *
+     * @return \Dinkbit\ConektaCashier\ConektaGateway
+     */
+    public function maintainTrial()
+    {
+        if ($this->billable->readyForBilling()) {
+            if (! is_null($trialEnd = $this->getTrialEndForCustomer($this->getStripeCustomer()))) {
+                $this->calculateRemainingTrialDays($trialEnd);
+            } else {
+                $this->skipTrial();
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Get the trial end timestamp for a Conekta subscription update.
      *
      * @return int
@@ -398,7 +426,7 @@ class ConektaGateway
     protected function getTrialEndForUpdate()
     {
         if ($this->skipTrial) {
-            return 'now';
+            return Carbon::now()->timestamp;
         }
 
         return $this->trialEnd ? $this->trialEnd->getTimestamp() : null;
