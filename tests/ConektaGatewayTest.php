@@ -133,7 +133,7 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
         $billable = $this->mockBillableInterface();
         $gateway = m::mock('Dinkbit\ConektaCashier\ConektaGateway[getConektaCustomer]', [$billable, 'plan']);
         $gateway->shouldReceive('getConektaCustomer')->andReturn($customer = m::mock('StdClass'));
-        $customer->subscription = (object) ['plan' => (object) ['id' => 1]];
+        $customer->subscription = (object) ['plan_id' => 1];
 
         $this->assertEquals(1, $gateway->planId());
     }
@@ -161,7 +161,7 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
     public function testGettingTheTrialEndDateForACustomer()
     {
         $time = time();
-        $customer = (object) ['subscription' => (object) ['billing_cycle_end' => $time, 'status' => 'in_trial']];
+        $customer = (object) ['subscription' => (object) ['trial_end' => $time, 'status' => 'in_trial']];
         $gateway = new ConektaGateway($this->mockBillableInterface(), 'plan');
 
         $this->assertInstanceOf('Carbon\Carbon', $gateway->getTrialEndForCustomer($customer));
