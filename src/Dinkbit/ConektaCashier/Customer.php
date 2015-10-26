@@ -66,21 +66,9 @@ class Customer extends Conekta_Customer
      */
     public function updateSubscription($params = null)
     {
-        if (is_null($this->subscription)) {
+        if (is_null($this->subscription) || $this->subscription->status == 'canceled') {
             return $this->_createSubscription($params);
         } else {
-            $billable = $this->getBillable($this->id);
-
-            if ($billable) {
-                if ($billable->onTrial()) {
-                    $this->subscription->resume();
-                }
-
-                if ($billable->expired() || $billable->cancelled()) {
-                    return $this->_createSubscription($params);
-                }
-            }
-
             return $this->_updateSubscription($params);
         }
     }
@@ -110,14 +98,12 @@ class Customer extends Conekta_Customer
     }
 
     /**
-     * Get the user entity by Conekta ID.
+     * Pause the current subscription.
      *
-     * @param string $conektaId
-     *
-     * @return \Dinkbit\ConektaCashier\BillableInterface
+     * @return void
      */
-    protected function getBillable($conektaId)
+    public function pauseSubscription()
     {
-        return \App::make('Dinkbit\ConektaCashier\BillableRepositoryInterface')->find($conektaId);
+        return $this->subscription->pause();
     }
 }

@@ -169,9 +169,11 @@ class ConektaGateway
     {
         $this->skipTrial()->create($token, [], $this->getConektaCustomer());
 
+        $this->extendTrial(Carbon::now());
+
         $this->billable->setTrialEndDate(null)->saveBillableInstance();
     }
-
+    
     /**
      * Cancel the billable entity's subscription.
      *
@@ -186,17 +188,33 @@ class ConektaGateway
                 $this->billable->setSubscriptionEndDate(
                     Carbon::createFromTimestamp($this->getSubscriptionEndTimestamp($customer))
                 );
-            } else {
-                $this->billable->setSubscriptionEndDate(Carbon::now());
             }
-        }
 
-        $customer->cancelSubscription(['at_period_end' => $atPeriodEnd]);
+            $customer->cancelSubscription(['at_period_end' => $atPeriodEnd]);
+        }
 
         if ($atPeriodEnd) {
             $this->billable->setConektaIsActive(false)->saveBillableInstance();
         } else {
+            $this->billable->setSubscriptionEndDate(Carbon::now());
+
             $this->billable->deactivateConekta()->saveBillableInstance();
+        }
+    }
+
+    /**
+     * Extend a subscription trial end datetime.
+     *
+     * @return void
+     */
+    public function extendTrial(\Datetime $trialEnd)
+    {
+        $customer = $this->getConektaCustomer();
+
+        if ($customer->subscription) {
+            $customer->updateSubscription(['trial_end' => $trialEnd->toIso8601String()]);
+
+            $this->billable->setTrialEndDate($trialEnd)->saveBillableInstance();
         }
     }
 
@@ -426,10 +444,10 @@ class ConektaGateway
     protected function getTrialEndForUpdate()
     {
         if ($this->skipTrial) {
-            return Carbon::now()->timestamp;
+            return Carbon::now()->toIso8601String();
         }
 
-        return $this->trialEnd ? $this->trialEnd->getTimestamp() : null;
+        return $this->trialEnd ? $this->trialEnd->toIso8601String() : null;
     }
 
     /**
