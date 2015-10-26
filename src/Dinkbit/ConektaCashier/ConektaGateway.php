@@ -173,7 +173,7 @@ class ConektaGateway
 
         $this->billable->setTrialEndDate(null)->saveBillableInstance();
     }
-    
+
     /**
      * Cancel the billable entity's subscription.
      *
