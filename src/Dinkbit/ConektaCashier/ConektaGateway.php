@@ -279,12 +279,16 @@ class ConektaGateway
 
         $card = $customer->createCard(['token' => $token]);
 
-        $customer->update(['default_card' => $card->id]);
+        $customer->update(['default_card_id' => $card->id]);
 
-        $this->billable
-                ->setLastFourCardDigits($this->getLastFourCardDigits($customer))
-                ->setCardType($this->getCardType($customer))
-                ->saveBillableInstance();
+        if ($customer->subscription) {
+            $customer->updateSubscription(['card' => $card->id]);
+
+            $this->billable
+                    ->setLastFourCardDigits($this->getLastFourCardDigits($customer))
+                    ->setCardType($this->getCardType($customer))
+                    ->saveBillableInstance();
+        }
     }
 
     /**
@@ -363,6 +367,16 @@ class ConektaGateway
             return;
         }
 
+        if ($customer->default_card_id) {
+            foreach ($customer->cards as $card) {
+                if ($card->id == $customer->default_card_id) {
+                    return $card->last4;
+                }
+            }
+
+            return;
+        }
+
         return $customer->cards[0]->last4;
     }
 
@@ -376,6 +390,16 @@ class ConektaGateway
     protected function getCardType($customer)
     {
         if (empty($customer->cards[0])) {
+            return;
+        }
+
+        if ($customer->default_card_id) {
+            foreach ($customer->cards as $card) {
+                if ($card->id == $customer->default_card_id) {
+                    return $card->brand;
+                }
+            }
+
             return;
         }
 
