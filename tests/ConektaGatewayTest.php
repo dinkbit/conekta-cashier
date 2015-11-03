@@ -122,7 +122,10 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
         $customer->subscription = (object) ['plan' => (object) ['id'  => 1]];
         $customer->shouldReceive('createCard')->once()->with(['token' => 'token'])->andReturn($card = m::mock('StdClass'));
         $card->id = 'card_id';
-        $customer->shouldReceive('update')->once()->with(['default_card' => 'card_id']);
+        $customer->shouldReceive('updateSubscription')->once()->with([
+            'card' => $card->id,
+        ])->andReturn((object) ['id' => 'sub_id']);
+        $customer->shouldReceive('update')->once()->with(['default_card_id' => 'card_id']);
 
         $billable->shouldReceive('setLastFourCardDigits')->once()->with('1111')->andReturn($billable);
         $billable->shouldReceive('setCardType')->once()->with('brand')->andReturn($billable);
@@ -153,8 +156,9 @@ class ConektaGatewayTest extends PHPUnit_Framework_TestCase
         $billable->shouldReceive('setSubscriptionEndDate')->once()->with(null)->andReturn($billable);
         $billable->shouldReceive('saveBillableInstance')->once()->andReturn($billable);
         $customer = m::mock('StdClass');
-        $customer->cards[0] = (object) ['last4' => 'last-four', 'brand' => 'brand-type'];
+        $customer->cards[0] = (object) ['id' => 'id', 'last4' => 'last-four', 'brand' => 'brand-type'];
         $customer->id = 'id';
+        $customer->default_card_id = 'id';
         $customer->shouldReceive('getSubscriptionId')->andReturn('sub_id');
 
         $gateway->updateLocalConektaData($customer);
