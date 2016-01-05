@@ -23,11 +23,11 @@ class CashierServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->bindShared('Dinkbit\ConektaCashier\BillableRepositoryInterface', function () {
+        $this->app->singleton('Dinkbit\ConektaCashier\BillableRepositoryInterface', function () {
             return new EloquentBillableRepository();
         });
 
-        $this->app->bindShared('command.conekta.cashier.table', function ($app) {
+        $this->app->singleton('command.conekta.cashier.table', function ($app) {
             return new CashierTableCommand();
         });
 
