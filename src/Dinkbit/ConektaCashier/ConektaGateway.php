@@ -169,8 +169,6 @@ class ConektaGateway
     {
         $this->skipTrial()->create($token, [], $this->getConektaCustomer());
 
-        $this->extendTrial(Carbon::now());
-
         $this->billable->setTrialEndDate(null)->saveBillableInstance();
     }
 

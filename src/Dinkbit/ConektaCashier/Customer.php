@@ -68,9 +68,9 @@ class Customer extends Conekta_Customer
     {
         if (is_null($this->subscription) || $this->subscription->status == 'canceled') {
             return $this->_createSubscription($params);
-        } else {
-            return $this->_updateSubscription($params);
         }
+
+        return $this->_updateSubscription($params);
     }
 
     /**
@@ -104,6 +104,16 @@ class Customer extends Conekta_Customer
      */
     public function pauseSubscription()
     {
-        return $this->subscription->pause();
+        return $this->subscription = $this->subscription->pause();
+    }
+
+    /**
+     * Resume the current subscription.
+     *
+     * @return void
+     */
+    public function resumeSubscription()
+    {
+        return $this->subscription = $this->subscription->resume();
     }
 }
