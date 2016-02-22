@@ -287,6 +287,8 @@ class ConektaGateway
                     ->setCardType($this->getCardType($customer))
                     ->saveBillableInstance();
         }
+
+        return $card;
     }
 
     /**
