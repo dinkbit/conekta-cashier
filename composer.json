@@ -23,10 +23,10 @@
     "require": {
         "php": ">=5.4.0",
         "conekta/conekta-php": "~2.0.4",
-        "illuminate/filesystem": "5.0.*|5.1.*|5.2.*",
-        "illuminate/support": "5.0.*|5.1.*|5.2.*",
+        "illuminate/filesystem": "5.0.*|5.1.*|5.2.*|5.3.*",
+        "illuminate/support": "5.0.*|5.1.*|5.2.*|5.3.*",
         "nesbot/carbon": "~1.0",
-        "symfony/http-kernel": "~2.3"
+        "symfony/http-kernel": "~2.6|~3.0"
     },
     "require-dev": {
         "illuminate/routing": "~5.0",
