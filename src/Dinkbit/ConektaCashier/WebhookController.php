@@ -4,10 +4,10 @@ namespace Dinkbit\ConektaCashier;
 
 use Conekta;
 use Conekta_Event;
-use Config;
 use Exception;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Request;
 use Symfony\Component\HttpFoundation\Response;
 
