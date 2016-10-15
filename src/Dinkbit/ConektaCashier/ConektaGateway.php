@@ -96,7 +96,7 @@ class ConektaGateway
      * @param array       $properties
      * @param object|null $customer
      *
-     * @return void
+     * @return \Conekta_Subscription|null
      */
     public function create($token, array $properties = [], $customer = null)
     {
@@ -121,6 +121,12 @@ class ConektaGateway
         }
 
         $this->updateLocalConektaData($customer);
+
+        if ($customer->subscription) {
+            return $customer->subscription;
+        } else {
+            return null;
+        }
     }
 
     /**
