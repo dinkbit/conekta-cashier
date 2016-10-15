@@ -210,7 +210,7 @@ class ConektaGateway
      * Extend a subscription trial end datetime.
      *
      * @param \Carbon\Carbon $trialEnd
-
+     *
      * @return void
      */
     public function extendTrial(\Carbon\Carbon $trialEnd)
