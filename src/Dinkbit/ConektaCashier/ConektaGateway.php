@@ -96,7 +96,7 @@ class ConektaGateway
      * @param array       $properties
      * @param object|null $customer
      *
-     * @return void
+     * @return \Conekta_Subscription|null
      */
     public function create($token, array $properties = [], $customer = null)
     {
@@ -121,6 +121,12 @@ class ConektaGateway
         }
 
         $this->updateLocalConektaData($customer);
+
+        if ($customer->subscription) {
+            return $customer->subscription;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -203,9 +209,11 @@ class ConektaGateway
     /**
      * Extend a subscription trial end datetime.
      *
+     * @param \Carbon\Carbon $trialEnd
+     *
      * @return void
      */
-    public function extendTrial(\Datetime $trialEnd)
+    public function extendTrial(\Carbon\Carbon $trialEnd)
     {
         $customer = $this->getConektaCustomer();
 
@@ -421,11 +429,11 @@ class ConektaGateway
     /**
      * Specify the ending date of the trial.
      *
-     * @param \DateTime $trialEnd
+     * @param \Carbon\Carbon $trialEnd
      *
      * @return \Dinkbit\ConektaCashier\ConektaGateway
      */
-    public function trialFor(\DateTime $trialEnd)
+    public function trialFor(\Carbon\Carbon $trialEnd)
     {
         $this->trialEnd = $trialEnd;
 
