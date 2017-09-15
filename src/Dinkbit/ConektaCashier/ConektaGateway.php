@@ -202,15 +202,17 @@ class ConektaGateway
 
     /**
      * Extend a subscription trial end datetime.
+     * 
+     * @param \DateTime $trialEnd
      *
      * @return void
      */
-    public function extendTrial(\Datetime $trialEnd)
+    public function extendTrial(\DateTime $trialEnd)
     {
         $customer = $this->getConektaCustomer();
 
         if ($customer->subscription) {
-            $customer->updateSubscription(['trial_end' => $trialEnd->toIso8601String()]);
+            $customer->updateSubscription(['trial_end' => $trialEnd->format(DateTime::ISO8601)]);
 
             $this->billable->setTrialEndDate($trialEnd)->saveBillableInstance();
         }
