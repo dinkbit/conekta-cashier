@@ -202,7 +202,7 @@ class ConektaGateway
 
     /**
      * Extend a subscription trial end datetime.
-     * 
+     *
      * @param \DateTime $trialEnd
      *
      * @return void
