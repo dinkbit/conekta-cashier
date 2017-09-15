@@ -86,7 +86,7 @@ You can also extend a subscription trial.
 
 	$subscription = $user->subscription('monthly')->create($creditCardToken);
 
-	$subscription->extendTrial(Carbon::now()->addMonth());
+	$user->extendTrial(Carbon::now()->addMonth());
 
 The `subscription` method will automatically create the Conekta subscription, as well as update your database with Conekta customer ID and other relevant billing information. If your plan has a trial configured in Conekta, the trial end date will also automatically be set on the user record.
 
