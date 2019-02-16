@@ -3,10 +3,11 @@
 namespace Dinkbit\ConektaCashier;
 
 use Carbon\Carbon;
-use Conekta;
-use Conekta_Charge;
-use Conekta_Customer;
-use Conekta_Error;
+use Conekta\Conekta;
+use Conekta\Charge;
+use Conekta\Customer;
+use Conekta\Error;
+use DateTime;
 use Dinkbit\ConektaCashier\Contracts\Billable as BillableContract;
 use InvalidArgumentException;
 
@@ -81,8 +82,8 @@ class ConektaGateway
         }
 
         try {
-            $response = Conekta_Charge::create($options);
-        } catch (Conekta_Error $e) {
+            $response = Charge::create($options);
+        } catch (Error $e) {
             return false;
         }
 
@@ -207,7 +208,7 @@ class ConektaGateway
      *
      * @return void
      */
-    public function extendTrial(\DateTime $trialEnd)
+    public function extendTrial(DateTime $trialEnd)
     {
         $customer = $this->getConektaCustomer();
 
@@ -241,7 +242,7 @@ class ConektaGateway
     /**
      * Get the subscription end timestamp for the customer.
      *
-     * @param \Conekta_Customer $customer
+     * @param \Conekta\Customer $customer
      *
      * @return int
      */
@@ -310,7 +311,7 @@ class ConektaGateway
     /**
      * Update the local Conekta data in storage.
      *
-     * @param \Conekta_Customer $customer
+     * @param \Conekta\Customer $customer
      * @param string|null       $plan
      *
      * @return void
@@ -333,11 +334,11 @@ class ConektaGateway
      * @param string $token
      * @param array  $properties
      *
-     * @return \Conekta_Customer
+     * @return \Conekta\Customer
      */
     public function createConektaCustomer($token, array $properties = [])
     {
-        $customer = Conekta_Customer::create(
+        $customer = Customer::create(
             array_merge(['cards' => [$token]], $properties), $this->getConektaKey()
         );
 
@@ -347,7 +348,7 @@ class ConektaGateway
     /**
      * Get the Conekta customer for entity.
      *
-     * @return \Conekta_Customer
+     * @return \Conekta\Customer
      */
     public function getConektaCustomer($id = null)
     {
@@ -359,7 +360,7 @@ class ConektaGateway
     /**
      * Get the last four credit card digits for a customer.
      *
-     * @param \Conekta_Customer $customer
+     * @param \Conekta\Customer $customer
      *
      * @return string
      */
@@ -385,7 +386,7 @@ class ConektaGateway
     /**
      * Get the last four credit card digits for a customer.
      *
-     * @param \Conekta_Customer $customer
+     * @param \Conekta\Customer $customer
      *
      * @return string
      */
@@ -427,7 +428,7 @@ class ConektaGateway
      *
      * @return \Dinkbit\ConektaCashier\ConektaGateway
      */
-    public function trialFor(\DateTime $trialEnd)
+    public function trialFor(DateTime $trialEnd)
     {
         $this->trialEnd = $trialEnd;
 

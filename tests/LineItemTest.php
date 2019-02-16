@@ -2,8 +2,9 @@
 
 use Dinkbit\ConektaCashier\LineItem;
 use Mockery as m;
+use PHPUnit\Framework\TestCase;
 
-class LineItemTest extends PHPUnit_Framework_TestCase
+class LineItemTest extends TestCase
 {
     public function tearDown()
     {

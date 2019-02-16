@@ -2,14 +2,14 @@
 
 namespace Dinkbit\ConektaCashier;
 
-use Conekta_Customer;
+use Conekta\Customer;
 
-class Customer extends Conekta_Customer
+class Customer extends Customer
 {
     /**
      * The subscription being managed by Conekta Cashier.
      *
-     * @var \Conekta_Subscription
+     * @var \Conekta\Subscription
      */
     public $subscription;
 
@@ -36,7 +36,7 @@ class Customer extends Conekta_Customer
      *
      * @param string $id
      *
-     * @return \Conekta_Subscription|null
+     * @return \Conekta\Subscription|null
      */
     public function findSubscription($id)
     {
@@ -62,7 +62,7 @@ class Customer extends Conekta_Customer
      *
      * @param array $params
      *
-     * @return \Conekta_Subscription
+     * @return \Conekta\Subscription
      */
     public function updateSubscription($params = null)
     {

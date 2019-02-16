@@ -3,8 +3,9 @@
 use Carbon\Carbon;
 use Dinkbit\ConektaCashier\ConektaGateway;
 use Mockery as m;
+use PHPUnit\Framework\TestCase;
 
-class ConektaGatewayTest extends PHPUnit_Framework_TestCase
+class ConektaGatewayTest extends TestCase
 {
     public function tearDown()
     {

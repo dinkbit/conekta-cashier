@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Request;
+use PHPUnit\Framework\TestCase;
 
-class WebhookControllerTest extends PHPUnit_Framework_TestCase
+class WebhookControllerTest extends TestCase
 {
     public function setUp()
     {

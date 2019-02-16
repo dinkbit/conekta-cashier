@@ -2,8 +2,9 @@
 
 use Illuminate\Support\Facades\Config;
 use Mockery as m;
+use PHPUnit\Framework\TestCase;
 
-class BillableTraitTest extends PHPUnit_Framework_TestCase
+class BillableTraitTest extends TestCase
 {
     public function tearDown()
     {

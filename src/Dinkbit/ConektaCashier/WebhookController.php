@@ -2,8 +2,8 @@
 
 namespace Dinkbit\ConektaCashier;
 
-use Conekta;
-use Conekta_Event;
+use Conekta\Conekta;
+use Conekta\Event;
 use Exception;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\App;
@@ -47,7 +47,7 @@ class WebhookController extends Controller
         try {
             Conekta::setApiKey(Config::get('services.conekta.secret'));
 
-            return !is_null(Conekta_Event::where(['id' => $id]));
+            return !is_null(Conekta\Event::where(['id' => $id]));
         } catch (Exception $e) {
             return false;
         }
