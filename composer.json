@@ -22,7 +22,7 @@
     ],
     "require": {
         "php": "^7.1",
-        "conekta/conekta-php": "dev-master",
+        "conekta/conekta-php": "dev-php7.2-support",
         "illuminate/filesystem": "5.7.*",
         "illuminate/support": "5.7.*"
     },
@@ -52,11 +52,5 @@
                 "Dinkbit\\ConektaCashier\\CashierServiceProvider"
             ]
         }
-    },
-    "repositories": [
-        {
-            "url": "https://github.com/conekta/conekta-php.git",
-            "type": "git"
-        }
-    ]
+    }
 }
