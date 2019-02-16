@@ -112,7 +112,7 @@ class ConektaGateway
         }
 
         $this->billable->setConektaSubscription(
-            $customer->updateSubscription($this->buildPayload())->id
+            $customer->createSubscription($this->buildPayload())->id
         );
 
         $customer = $this->getConektaCustomer($customer->id);
@@ -338,8 +338,13 @@ class ConektaGateway
      */
     public function createConektaCustomer($token, array $properties = [])
     {
+        $payment_sources = [[
+            'token_id' => $token,
+            'type' => 'card'
+        ]];
+        
         $customer = Customer::create(
-            array_merge(['cards' => [$token]], $properties), $this->getConektaKey()
+            array_merge(['payment_sources' => $payment_sources], $properties)
         );
 
         return $this->getConektaCustomer($customer->id);

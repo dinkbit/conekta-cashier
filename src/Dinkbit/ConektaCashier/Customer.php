@@ -2,9 +2,9 @@
 
 namespace Dinkbit\ConektaCashier;
 
-use Conekta\Customer;
+use Conekta\Customer as ConektaCustomer;
 
-class Customer extends Customer
+class Customer extends ConektaCustomer
 {
     /**
      * The subscription being managed by Conekta Cashier.
