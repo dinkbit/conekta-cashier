@@ -22,7 +22,7 @@
     ],
     "require": {
         "php": "^7.1",
-        "conekta/conekta-php": "^4.0",
+        "conekta/conekta-php": "dev-master",
         "illuminate/filesystem": "5.7.*",
         "illuminate/support": "5.7.*"
     },
@@ -42,5 +42,21 @@
             "dev-master": "2.0-dev"
         }
     },
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Dinkbit\\ConektaCashier\\LaravelConektaServiceProvider"
+            ]
+        }
+    },
+    "repositories": [
+        {
+            "url": "https://github.com/conekta/conekta-php.git",
+            "type": "git"
+        }
+    ]
 }
