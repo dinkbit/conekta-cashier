@@ -49,7 +49,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Dinkbit\\ConektaCashier\\LaravelConektaServiceProvider"
+                "Dinkbit\\ConektaCashier\\CashierServiceProvider"
             ]
         }
     },
