@@ -3,9 +3,9 @@
 namespace Dinkbit\ConektaCashier;
 
 use Carbon\Carbon;
-use Conekta\Conekta;
 use Conekta\Charge;
-use Conekta\Customer;
+use Conekta\Conekta;
+use Dinkbit\ConektaCashier\Customer;
 use Conekta\Error;
 use DateTime;
 use Dinkbit\ConektaCashier\Contracts\Billable as BillableContract;
@@ -112,7 +112,7 @@ class ConektaGateway
         }
 
         $this->billable->setConektaSubscription(
-            $customer->createSubscription($this->buildPayload())->id
+            $customer->updateSubscription($this->buildPayload())->id
         );
 
         $customer = $this->getConektaCustomer($customer->id);
@@ -189,7 +189,7 @@ class ConektaGateway
                 );
             }
 
-            $customer->cancelSubscription(['at_period_end' => $atPeriodEnd]);
+            $customer->cancelSubscription();
         }
 
         if ($atPeriodEnd) {
@@ -248,11 +248,7 @@ class ConektaGateway
      */
     protected function getSubscriptionEndTimestamp($customer)
     {
-        if (!is_null($customer->subscription->trial_end) && $customer->subscription->trial_end > time()) {
-            return $customer->subscription->trial_end;
-        } else {
-            return $customer->subscription->billing_cycle_end;
-        }
+        return $customer->subscription->billing_cycle_end;
     }
 
     /**

@@ -13,7 +13,7 @@ class CashierServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+
     }
 
     /**
