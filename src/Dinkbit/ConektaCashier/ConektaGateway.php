@@ -5,10 +5,11 @@ namespace Dinkbit\ConektaCashier;
 use Carbon\Carbon;
 use Conekta\Charge;
 use Conekta\Conekta;
-use Dinkbit\ConektaCashier\Customer;
 use Conekta\Error;
+use Conekta\Order;
 use DateTime;
 use Dinkbit\ConektaCashier\Contracts\Billable as BillableContract;
+use Dinkbit\ConektaCashier\Customer;
 use InvalidArgumentException;
 
 class ConektaGateway
@@ -67,22 +68,29 @@ class ConektaGateway
      */
     public function charge($amount, array $options = [])
     {
-        $options = array_merge([
-            'currency' => 'mxn',
+        $attribs = array_merge([
+            'currency' => 'MXN',
+            'customer_info' => [
+                'customer_id' => $this->getConektaCustomer()->id
+            ],
+            'line_items' => [
+                [
+                    'name' => $this->defaultChargeName(),
+                    'unit_price' => $amount,
+                    'quantity' => 1
+                ]
+            ],
+            'charges' => [
+                [
+                    'payment_method' => [
+                        'type' => 'default',
+                    ]
+                ]
+            ]
         ], $options);
 
-        $options['amount'] = $amount;
-
-        if (!array_key_exists('card', $options) && $this->billable->hasConektaId()) {
-            $options['card'] = $this->billable->getConektaId();
-        }
-
-        if (!array_key_exists('card', $options)) {
-            throw new InvalidArgumentException('No payment source provided.');
-        }
-
         try {
-            $response = Charge::create($options);
+            $response = Order::create($attribs);
         } catch (Error $e) {
             return false;
         }
@@ -248,7 +256,11 @@ class ConektaGateway
      */
     protected function getSubscriptionEndTimestamp($customer)
     {
-        return $customer->subscription->billing_cycle_end;
+        if (!is_null($customer->subscription->trial_end) && $customer->subscription->trial_end > time()) {
+            return $customer->subscription->trial_end;
+        } else {
+            return $customer->subscription->billing_cycle_end;
+        }
     }
 
     /**
@@ -502,7 +514,7 @@ class ConektaGateway
     protected function calculateRemainingTrialDays($trialEnd)
     {
         // If there is still trial left on the current plan, we'll maintain that amount of
-        // time on the new plan. If there is no time left on the trial we will force it
+        // time on the new plan. If there is no time line_itemsft on the trial we will force it
         // to skip any trials on this new plan, as this is the most expected actions.
         $diff = Carbon::now()->diffInHours($trialEnd);
 
@@ -527,5 +539,15 @@ class ConektaGateway
     protected function getCurrency()
     {
         return $this->billable->getCurrency();
+    }
+
+    /**
+     * Get the default charge name
+     *
+     * @return string
+     */
+    protected function defaultChargeName()
+    {
+        return 'Single charge';
     }
 }
